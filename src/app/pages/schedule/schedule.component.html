@@ -1,0 +1,136 @@
+<div class="page-head">
+  <div>
+    <span class="eyebrow">Register · 06</span>
+    <h1>Class schedule</h1>
+  </div>
+  <div class="tally">
+    <span>sessions</span>
+    <b>{{ schedules.length }}</b>
+  </div>
+</div>
+
+<div class="banner banner-error" *ngIf="error">{{ error }}</div>
+
+<div class="sheet form-panel" *ngIf="showForm">
+  <h2>{{ editingId === null ? 'Schedule a class' : 'Edit schedule #' + editingId }}</h2>
+
+  <div class="banner banner-error" *ngIf="formError">{{ formError }}</div>
+
+  <form (ngSubmit)="save()">
+    <div class="form-grid">
+      <div class="field">
+        <label for="groupName">Group</label>
+        <input id="groupName" name="groupName" type="text" [(ngModel)]="draft.groupName" placeholder="e.g. C01" required />
+      </div>
+      <div class="field">
+        <label for="major">Major</label>
+        <input id="major" name="major" type="text" [(ngModel)]="draft.major" placeholder="e.g. MIS" />
+      </div>
+      <div class="field span-2">
+        <label for="subject">Subject</label>
+        <input id="subject" name="subject" type="text" [(ngModel)]="draft.subject" placeholder="e.g. networking" required />
+      </div>
+      <div class="field">
+        <label for="teacherId">Teacher ID</label>
+        <input id="teacherId" name="teacherId" type="number" min="0" [(ngModel)]="draft.teacherId" />
+      </div>
+      <div class="field">
+        <label for="teacherName">Teacher name</label>
+        <input id="teacherName" name="teacherName" type="text" [(ngModel)]="draft.teacherName" />
+      </div>
+      <div class="field">
+        <label for="dayOfWeek">Day of week</label>
+        <select id="dayOfWeek" name="dayOfWeek" [(ngModel)]="draft.dayOfWeek">
+          <option *ngFor="let d of days" [value]="d">{{ d }}</option>
+        </select>
+      </div>
+      <div class="field">
+        <label for="shift">Shift</label>
+        <select id="shift" name="shift" [(ngModel)]="draft.shift">
+          <option value="Morning">Morning</option>
+          <option value="Afternoon">Afternoon</option>
+          <option value="Evening">Evening</option>
+        </select>
+      </div>
+      <div class="field">
+        <label for="startTime">Start time</label>
+        <input id="startTime" name="startTime" type="time" [(ngModel)]="draft.startTime" />
+      </div>
+      <div class="field">
+        <label for="endTime">End time</label>
+        <input id="endTime" name="endTime" type="time" [(ngModel)]="draft.endTime" />
+      </div>
+      <div class="field">
+        <label for="room">Room</label>
+        <input id="room" name="room" type="text" [(ngModel)]="draft.room" placeholder="e.g. Room 201" />
+      </div>
+      <div class="field">
+        <label for="semester">Semester</label>
+        <input id="semester" name="semester" type="number" min="1" [(ngModel)]="draft.semester" />
+      </div>
+      <div class="field">
+        <label for="academicYear">Academic year</label>
+        <input id="academicYear" name="academicYear" type="text" [(ngModel)]="draft.academicYear" />
+      </div>
+    </div>
+
+    <div class="form-actions">
+      <button type="submit" class="btn btn-primary" [disabled]="saving">
+        {{ saving ? 'Saving…' : (editingId === null ? 'Add to schedule' : 'Save changes') }}
+      </button>
+      <button type="button" class="btn btn-ghost" (click)="cancelForm()">Cancel</button>
+    </div>
+  </form>
+</div>
+
+<div class="toolbar" *ngIf="!showForm">
+  <input
+    class="search-input"
+    type="text"
+    placeholder="Search by group, subject, teacher, or room…"
+    [(ngModel)]="search"
+    name="search"
+  />
+  <button class="btn btn-primary" (click)="openCreate()">+ Add session</button>
+</div>
+
+<div class="loading-note" *ngIf="loading">Retrieving timetable…</div>
+
+<div class="sheet ledger-wrap" *ngIf="!loading && !showForm">
+  <table class="ledger">
+    <thead>
+      <tr>
+        <th>ID</th>
+        <th>Group</th>
+        <th>Subject</th>
+        <th>Teacher</th>
+        <th>Day</th>
+        <th>Time</th>
+        <th>Room</th>
+        <th>Shift</th>
+        <th></th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr *ngFor="let s of filtered">
+        <td class="mono">{{ s.scheduleId }}</td>
+        <td><span class="chip">{{ s.groupName }}</span></td>
+        <td>{{ s.subject }}</td>
+        <td>{{ s.teacherName }}</td>
+        <td>{{ s.dayOfWeek }}</td>
+        <td class="mono">{{ s.startTime }}–{{ s.endTime }}</td>
+        <td>{{ s.room }}</td>
+        <td>{{ s.shift }}</td>
+        <td>
+          <div class="row-actions">
+            <button class="btn btn-ghost btn-sm" (click)="openEdit(s)">Edit</button>
+            <button class="btn btn-danger btn-sm" (click)="remove(s)">Delete</button>
+          </div>
+        </td>
+      </tr>
+      <tr class="empty-row" *ngIf="filtered.length === 0">
+        <td colspan="9">No sessions match this search.</td>
+      </tr>
+    </tbody>
+  </table>
+</div>

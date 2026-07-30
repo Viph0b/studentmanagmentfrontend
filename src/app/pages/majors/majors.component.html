@@ -1,0 +1,97 @@
+<div class="page-head">
+  <div>
+    <span class="eyebrow">Register · 04</span>
+    <h1>Majors</h1>
+  </div>
+  <div class="tally">
+    <span>programs</span>
+    <b>{{ majors.length }}</b>
+  </div>
+</div>
+
+<div class="banner banner-error" *ngIf="error">{{ error }}</div>
+
+<div class="sheet form-panel" *ngIf="showForm">
+  <h2>{{ editingId === null ? 'Add a major' : 'Edit major #' + editingId }}</h2>
+  <span class="form-sub">Separate multiple subjects or groups with commas.</span>
+
+  <div class="banner banner-error" *ngIf="formError">{{ formError }}</div>
+
+  <form (ngSubmit)="save()">
+    <div class="form-grid">
+      <div class="field span-2">
+        <label for="majorName">Program name</label>
+        <input id="majorName" name="majorName" type="text" [(ngModel)]="draft.majorName" required />
+      </div>
+      <div class="field">
+        <label for="pricePerSemester">Price per semester ($)</label>
+        <input id="pricePerSemester" name="pricePerSemester" type="number" min="0" [(ngModel)]="draft.pricePerSemester" />
+      </div>
+      <div class="field">
+        <label for="groupText">Groups</label>
+        <input id="groupText" name="groupText" type="text" [(ngModel)]="draft.groupText" placeholder="e.g. C01, C02" />
+      </div>
+      <div class="field span-2">
+        <label for="subjectsText">Subjects</label>
+        <textarea id="subjectsText" name="subjectsText" [(ngModel)]="draft.subjectsText" placeholder="e.g. C++, C#, Networking"></textarea>
+      </div>
+    </div>
+
+    <div class="form-actions">
+      <button type="submit" class="btn btn-primary" [disabled]="saving">
+        {{ saving ? 'Saving…' : (editingId === null ? 'Add major' : 'Save changes') }}
+      </button>
+      <button type="button" class="btn btn-ghost" (click)="cancelForm()">Cancel</button>
+    </div>
+  </form>
+</div>
+
+<div class="toolbar" *ngIf="!showForm">
+  <input
+    class="search-input"
+    type="text"
+    placeholder="Search by program name…"
+    [(ngModel)]="search"
+    name="search"
+  />
+  <button class="btn btn-primary" (click)="openCreate()">+ Add major</button>
+</div>
+
+<div class="loading-note" *ngIf="loading">Retrieving programs…</div>
+
+<div class="sheet ledger-wrap" *ngIf="!loading && !showForm">
+  <table class="ledger">
+    <thead>
+      <tr>
+        <th>ID</th>
+        <th>Program</th>
+        <th>Price / semester</th>
+        <th>Groups</th>
+        <th>Subjects</th>
+        <th></th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr *ngFor="let m of filtered">
+        <td class="mono">{{ m.majorId }}</td>
+        <td>{{ m.majorName }}</td>
+        <td class="mono">${{ m.pricePerSemester }}</td>
+        <td>
+          <span class="chip" *ngFor="let g of m.group">{{ g }}</span>
+        </td>
+        <td>
+          <span class="chip" *ngFor="let s of m.subjects">{{ s }}</span>
+        </td>
+        <td>
+          <div class="row-actions">
+            <button class="btn btn-ghost btn-sm" (click)="openEdit(m)">Edit</button>
+            <button class="btn btn-danger btn-sm" (click)="remove(m)">Delete</button>
+          </div>
+        </td>
+      </tr>
+      <tr class="empty-row" *ngIf="filtered.length === 0">
+        <td colspan="6">No majors match this search.</td>
+      </tr>
+    </tbody>
+  </table>
+</div>

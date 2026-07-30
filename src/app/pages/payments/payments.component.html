@@ -1,0 +1,116 @@
+<div class="page-head">
+  <div>
+    <span class="eyebrow">Register · 07</span>
+    <h1>Fee payments</h1>
+  </div>
+  <div class="tally">
+    <span>transactions</span>
+    <b>{{ payments.length }}</b>
+  </div>
+</div>
+
+<div class="banner banner-error" *ngIf="error">{{ error }}</div>
+
+<div class="sheet form-panel" *ngIf="showForm">
+  <h2>{{ editingId === null ? 'Record a payment' : 'Edit payment #' + editingId }}</h2>
+
+  <div class="banner banner-error" *ngIf="formError">{{ formError }}</div>
+
+  <form (ngSubmit)="save()">
+    <div class="form-grid">
+      <div class="field">
+        <label for="studentId">Student ID</label>
+        <input id="studentId" name="studentId" type="number" min="0" [(ngModel)]="draft.studentId" required />
+      </div>
+      <div class="field">
+        <label for="semester">Semester</label>
+        <input id="semester" name="semester" type="number" min="1" [(ngModel)]="draft.semester" />
+      </div>
+      <div class="field">
+        <label for="amountPaid">Amount paid ($)</label>
+        <input id="amountPaid" name="amountPaid" type="number" min="0" [(ngModel)]="draft.amountPaid" />
+      </div>
+      <div class="field">
+        <label for="paymentDate">Payment date</label>
+        <input id="paymentDate" name="paymentDate" type="date" [(ngModel)]="draft.paymentDate" />
+      </div>
+      <div class="field">
+        <label for="paymentMethod">Payment method</label>
+        <select id="paymentMethod" name="paymentMethod" [(ngModel)]="draft.paymentMethod">
+          <option value="Cash">Cash</option>
+          <option value="ABA">ABA</option>
+          <option value="Aceleda">Aceleda</option>
+          <option value="Wing">Wing</option>
+          <option value="FTB">FTB</option>
+          <option value="Philliop">Philliop</option>
+        </select>
+      </div>
+      <div class="field">
+        <label for="status">Status</label>
+        <select id="status" name="status" [(ngModel)]="draft.status">
+          <option value="Paid">Paid</option>
+          <option value="Not yet paid">Not yet paid</option>
+        </select>
+      </div>
+    </div>
+
+    <div class="form-actions">
+      <button type="submit" class="btn btn-primary" [disabled]="saving">
+        {{ saving ? 'Saving…' : (editingId === null ? 'Record payment' : 'Save changes') }}
+      </button>
+      <button type="button" class="btn btn-ghost" (click)="cancelForm()">Cancel</button>
+    </div>
+  </form>
+</div>
+
+<div class="toolbar" *ngIf="!showForm">
+  <input
+    class="search-input"
+    type="text"
+    placeholder="Search by student ID, method, or status…"
+    [(ngModel)]="search"
+    name="search"
+  />
+  <button class="btn btn-primary" (click)="openCreate()">+ Record payment</button>
+</div>
+
+<div class="loading-note" *ngIf="loading">Retrieving ledger entries…</div>
+
+<div class="sheet ledger-wrap" *ngIf="!loading && !showForm">
+  <table class="ledger">
+    <thead>
+      <tr>
+        <th>Payment ID</th>
+        <th>Student ID</th>
+        <th>Semester</th>
+        <th>Amount</th>
+        <th>Date</th>
+        <th>Method</th>
+        <th>Status</th>
+        <th></th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr *ngFor="let p of filtered">
+        <td class="mono">{{ p.paymentId }}</td>
+        <td class="mono">{{ p.studentId }}</td>
+        <td class="mono">{{ p.semester }}</td>
+        <td class="mono">${{ p.amountPaid }}</td>
+        <td class="mono">{{ p.paymentDate | slice:0:10 }}</td>
+        <td>{{ p.paymentMethod }}</td>
+        <td>
+          <span class="stamp" [ngClass]="isPaid(p.status) ? 'stamp-good' : 'stamp-bad'">{{ p.status }}</span>
+        </td>
+        <td>
+          <div class="row-actions">
+            <button class="btn btn-ghost btn-sm" (click)="openEdit(p)">Edit</button>
+            <button class="btn btn-danger btn-sm" (click)="remove(p)">Delete</button>
+          </div>
+        </td>
+      </tr>
+      <tr class="empty-row" *ngIf="filtered.length === 0">
+        <td colspan="8">No payments match this search.</td>
+      </tr>
+    </tbody>
+  </table>
+</div>

@@ -1,0 +1,109 @@
+<div class="page-head">
+  <div>
+    <span class="eyebrow">Register · 03</span>
+    <h1>Teachers</h1>
+  </div>
+  <div class="tally">
+    <span>on staff</span>
+    <b>{{ teachers.length }}</b>
+  </div>
+</div>
+
+<div class="banner banner-error" *ngIf="error">{{ error }}</div>
+
+<div class="sheet form-panel" *ngIf="showForm">
+  <h2>{{ editingId === null ? 'Add a teacher' : 'Edit teacher #' + editingId }}</h2>
+  <span class="form-sub">Separate multiple subjects with commas.</span>
+
+  <div class="banner banner-error" *ngIf="formError">{{ formError }}</div>
+
+  <form (ngSubmit)="save()">
+    <div class="form-grid">
+      <div class="field span-2">
+        <label for="teacherName">Full name</label>
+        <input id="teacherName" name="teacherName" type="text" [(ngModel)]="draft.teacherName" required />
+      </div>
+      <div class="field">
+        <label for="gender">Gender</label>
+        <select id="gender" name="gender" [(ngModel)]="draft.gender">
+          <option value="Male">Male</option>
+          <option value="Female">Female</option>
+          <option value="Other">Other</option>
+        </select>
+      </div>
+      <div class="field">
+        <label for="dateOfBirth">Date of birth</label>
+        <input id="dateOfBirth" name="dateOfBirth" type="date" [(ngModel)]="draft.dateOfBirth" />
+      </div>
+      <div class="field">
+        <label for="phoneNumber">Phone number</label>
+        <input id="phoneNumber" name="phoneNumber" type="text" [(ngModel)]="draft.phoneNumber" />
+      </div>
+      <div class="field">
+        <label for="salary">Monthly salary ($)</label>
+        <input id="salary" name="salary" type="number" min="0" [(ngModel)]="draft.salary" />
+      </div>
+      <div class="field span-2">
+        <label for="subjectsText">Subjects taught</label>
+        <input id="subjectsText" name="subjectsText" type="text" [(ngModel)]="draft.subjectsText" placeholder="e.g. Database, MongoDB" />
+      </div>
+    </div>
+
+    <div class="form-actions">
+      <button type="submit" class="btn btn-primary" [disabled]="saving">
+        {{ saving ? 'Saving…' : (editingId === null ? 'Add teacher' : 'Save changes') }}
+      </button>
+      <button type="button" class="btn btn-ghost" (click)="cancelForm()">Cancel</button>
+    </div>
+  </form>
+</div>
+
+<div class="toolbar" *ngIf="!showForm">
+  <input
+    class="search-input"
+    type="text"
+    placeholder="Search by name or subject…"
+    [(ngModel)]="search"
+    name="search"
+  />
+  <button class="btn btn-primary" (click)="openCreate()">+ Add teacher</button>
+</div>
+
+<div class="loading-note" *ngIf="loading">Retrieving faculty roster…</div>
+
+<div class="sheet ledger-wrap" *ngIf="!loading && !showForm">
+  <table class="ledger">
+    <thead>
+      <tr>
+        <th>ID</th>
+        <th>Name</th>
+        <th>Gender</th>
+        <th>Subjects</th>
+        <th>Phone</th>
+        <th>Salary</th>
+        <th></th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr *ngFor="let t of filtered">
+        <td class="mono">{{ t.teacherId }}</td>
+        <td>{{ t.teacherName }}</td>
+        <td>{{ t.gender }}</td>
+        <td>
+          <span class="chip" *ngFor="let subj of t.subjects">{{ subj }}</span>
+        </td>
+        <td class="mono">{{ t.phoneNumber || '—' }}</td>
+        <td class="mono">${{ t.salary }}</td>
+        <td>
+          <div class="row-actions">
+            <button class="btn btn-ghost btn-sm" (click)="openEdit(t)">Edit</button>
+            <button class="btn btn-danger btn-sm" (click)="remove(t)">Delete</button>
+          </div>
+        </td>
+      </tr>
+      <tr class="empty-row" *ngIf="filtered.length === 0">
+        <td colspan="7">No teachers match this search.</td>
+      </tr>
+    </tbody>
+  </table>
+</div>

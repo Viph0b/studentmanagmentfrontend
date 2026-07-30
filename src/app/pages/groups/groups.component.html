@@ -1,0 +1,119 @@
+<div class="page-head">
+  <div>
+    <span class="eyebrow">Register · 05</span>
+    <h1>Groups</h1>
+  </div>
+  <div class="tally">
+    <span>cohorts</span>
+    <b>{{ groups.length }}</b>
+  </div>
+</div>
+
+<div class="banner banner-error" *ngIf="error">{{ error }}</div>
+
+<div class="sheet form-panel" *ngIf="showForm">
+  <h2>{{ editingId === null ? 'Add a group' : 'Edit group #' + editingId }}</h2>
+
+  <div class="banner banner-error" *ngIf="formError">{{ formError }}</div>
+
+  <form (ngSubmit)="save()">
+    <div class="form-grid">
+      <div class="field">
+        <label for="groupName">Group name</label>
+        <input id="groupName" name="groupName" type="text" [(ngModel)]="draft.groupName" placeholder="e.g. C11" required />
+      </div>
+      <div class="field">
+        <label for="major">Major</label>
+        <input id="major" name="major" type="text" [(ngModel)]="draft.major" placeholder="e.g. MIS" />
+      </div>
+      <div class="field">
+        <label for="totalStudents">Total students</label>
+        <input id="totalStudents" name="totalStudents" type="number" min="0" [(ngModel)]="draft.totalStudents" />
+      </div>
+      <div class="field">
+        <label for="currentSemester">Current semester</label>
+        <input id="currentSemester" name="currentSemester" type="number" min="1" [(ngModel)]="draft.currentSemester" />
+      </div>
+      <div class="field">
+        <label for="academicYear">Academic year</label>
+        <input id="academicYear" name="academicYear" type="text" [(ngModel)]="draft.academicYear" placeholder="2025-2026" />
+      </div>
+      <div class="field">
+        <label for="shift">Shift</label>
+        <select id="shift" name="shift" [(ngModel)]="draft.shift">
+          <option value="Morning">Morning</option>
+          <option value="Afternoon">Afternoon</option>
+          <option value="Evening">Evening</option>
+        </select>
+      </div>
+      <div class="field">
+        <label for="status">Status</label>
+        <select id="status" name="status" [(ngModel)]="draft.status">
+          <option value="Active">Active</option>
+          <option value="Inactive">Inactive</option>
+        </select>
+      </div>
+    </div>
+
+    <div class="form-actions">
+      <button type="submit" class="btn btn-primary" [disabled]="saving">
+        {{ saving ? 'Saving…' : (editingId === null ? 'Add group' : 'Save changes') }}
+      </button>
+      <button type="button" class="btn btn-ghost" (click)="cancelForm()">Cancel</button>
+    </div>
+  </form>
+</div>
+
+<div class="toolbar" *ngIf="!showForm">
+  <input
+    class="search-input"
+    type="text"
+    placeholder="Search by group, major, or status…"
+    [(ngModel)]="search"
+    name="search"
+  />
+  <button class="btn btn-primary" (click)="openCreate()">+ Add group</button>
+</div>
+
+<div class="loading-note" *ngIf="loading">Retrieving cohorts…</div>
+
+<div class="sheet ledger-wrap" *ngIf="!loading && !showForm">
+  <table class="ledger">
+    <thead>
+      <tr>
+        <th>ID</th>
+        <th>Group</th>
+        <th>Major</th>
+        <th>Students</th>
+        <th>Semester</th>
+        <th>Year</th>
+        <th>Shift</th>
+        <th>Status</th>
+        <th></th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr *ngFor="let g of filtered">
+        <td class="mono">{{ g.groupId }}</td>
+        <td><strong>{{ g.groupName }}</strong></td>
+        <td>{{ g.major }}</td>
+        <td class="mono">{{ g.totalStudents }}</td>
+        <td class="mono">{{ g.currentSemester }}</td>
+        <td class="mono">{{ g.academicYear }}</td>
+        <td>{{ g.shift }}</td>
+        <td>
+          <span class="stamp" [ngClass]="g.status === 'Active' ? 'stamp-good' : 'stamp-bad'">{{ g.status }}</span>
+        </td>
+        <td>
+          <div class="row-actions">
+            <button class="btn btn-ghost btn-sm" (click)="openEdit(g)">Edit</button>
+            <button class="btn btn-danger btn-sm" (click)="remove(g)">Delete</button>
+          </div>
+        </td>
+      </tr>
+      <tr class="empty-row" *ngIf="filtered.length === 0">
+        <td colspan="9">No groups match this search.</td>
+      </tr>
+    </tbody>
+  </table>
+</div>

@@ -1,0 +1,67 @@
+<button class="hamburger" (click)="toggleSidebar()" aria-label="Toggle navigation">
+  {{ sidebarOpen ? '✕' : '☰' }}
+</button>
+
+<div class="sidebar-backdrop" [class.open]="sidebarOpen" (click)="closeSidebar()"></div>
+
+<div class="app-shell">
+  <aside class="spine" [class.open]="sidebarOpen">
+    <div class="spine-brand">
+      <div class="mark">Registrar's&nbsp;Office</div>
+      <div class="sub">School Management</div>
+    </div>
+    <ul class="spine-nav">
+      <li *ngFor="let item of navItems">
+        <a
+          [routerLink]="item.path"
+          routerLinkActive="active"
+          [routerLinkActiveOptions]="{ exact: item.path === '/' }"
+          (click)="closeSidebar()"
+        >
+          <span class="no">{{ item.no }}</span>
+          <span>{{ item.label }}</span>
+        </a>
+      </li>
+    </ul>
+    <div class="spine-foot">API · localhost:5073/api</div>
+  </aside>
+
+  <main class="canvas" (click)="closeSidebar()">
+    <div class="page-wrap" [@routeAnimations]="getRouteAnimation(routerOutlet)">
+      <router-outlet #routerOutlet="outlet"></router-outlet>
+    </div>
+  </main>
+</div>
+
+<!-- Toast container -->
+<div class="toast-container" *ngIf="toasts.length > 0">
+  <div
+    class="toast"
+    [class.toast-success]="t.type === 'success'"
+    [class.toast-error]="t.type === 'error'"
+    [class.toast-info]="t.type === 'info'"
+    *ngFor="let t of toasts"
+  >
+    <span>{{ t.message }}</span>
+    <button class="toast-close" (click)="dismissToast(t.id)">✕</button>
+  </div>
+</div>
+
+<!-- Confirm dialog -->
+<div class="modal-overlay" *ngIf="confirm" (click)="onConfirm(false)">
+  <div class="modal-dialog" (click)="$event.stopPropagation()">
+    <h3>{{ confirm.title }}</h3>
+    <p>{{ confirm.message }}</p>
+    <div class="modal-actions">
+      <button class="btn btn-ghost" (click)="onConfirm(false)">{{ confirm.cancelLabel || 'Cancel' }}</button>
+      <button
+        class="btn"
+        [class.btn-danger]="confirm.danger"
+        [class.btn-primary]="!confirm.danger"
+        (click)="onConfirm(true)"
+      >
+        {{ confirm.confirmLabel || 'Confirm' }}
+      </button>
+    </div>
+  </div>
+</div>
