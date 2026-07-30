@@ -18,13 +18,13 @@ export class AppComponent implements OnInit, OnDestroy {
   private readonly destroy$ = new Subject<void>();
 
   readonly navItems = [
-    { no: '01', label: 'Overview', path: '/' },
-    { no: '02', label: 'Students', path: '/students' },
-    { no: '03', label: 'Teachers', path: '/teachers' },
-    { no: '04', label: 'Majors', path: '/majors' },
-    { no: '05', label: 'Groups', path: '/groups' },
-    { no: '06', label: 'Class schedule', path: '/schedule' },
-    { no: '07', label: 'Fee payments', path: '/payments' },
+    { no: '01', label: 'Overview', path: '/', icon: '📊' },
+    { no: '02', label: 'Students', path: '/students', icon: '👨‍🎓' },
+    { no: '03', label: 'Teachers', path: '/teachers', icon: '👩‍🏫' },
+    { no: '04', label: 'Majors', path: '/majors', icon: '📚' },
+    { no: '05', label: 'Groups', path: '/groups', icon: '👥' },
+    { no: '06', label: 'Class schedule', path: '/schedule', icon: '📅' },
+    { no: '07', label: 'Fee payments', path: '/payments', icon: '💳' },
   ];
 
   sidebarOpen = false;

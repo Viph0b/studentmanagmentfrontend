@@ -16,6 +16,7 @@ interface Tile {
   path: string;
   count: number | null;
   desc: string;
+  icon: string;
 }
 
 @Component({
@@ -29,12 +30,12 @@ export class HomeComponent implements OnInit {
   error = '';
 
   tiles: Tile[] = [
-    { no: '02', label: 'Students', path: '/students', count: null, desc: 'Enrolled learner records' },
-    { no: '03', label: 'Teachers', path: '/teachers', count: null, desc: 'Faculty roster' },
-    { no: '04', label: 'Majors', path: '/majors', count: null, desc: 'Programs of study' },
-    { no: '05', label: 'Groups', path: '/groups', count: null, desc: 'Class cohorts' },
-    { no: '06', label: 'Class schedule', path: '/schedule', count: null, desc: 'Weekly timetable entries' },
-    { no: '07', label: 'Fee payments', path: '/payments', count: null, desc: 'Recorded transactions' },
+    { no: '02', label: 'Students', path: '/students', count: null, desc: 'Enrolled learner records', icon: '👨‍🎓' },
+    { no: '03', label: 'Teachers', path: '/teachers', count: null, desc: 'Faculty roster', icon: '👩‍🏫' },
+    { no: '04', label: 'Majors', path: '/majors', count: null, desc: 'Programs of study', icon: '📚' },
+    { no: '05', label: 'Groups', path: '/groups', count: null, desc: 'Class cohorts', icon: '👥' },
+    { no: '06', label: 'Class schedule', path: '/schedule', count: null, desc: 'Weekly timetable entries', icon: '📅' },
+    { no: '07', label: 'Fee payments', path: '/payments', count: null, desc: 'Recorded transactions', icon: '💳' },
   ];
 
   constructor(

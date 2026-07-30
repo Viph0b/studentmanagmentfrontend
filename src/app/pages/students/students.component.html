@@ -1,4 +1,4 @@
-<div class="page-head">
+<div class="page-header">
   <div>
     <span class="eyebrow">Register · 02</span>
     <h1>Students</h1>
@@ -11,7 +11,7 @@
 
 <div class="banner banner-error" *ngIf="error">{{ error }}</div>
 
-<div class="sheet form-panel" *ngIf="showForm">
+<div class="card form-panel" *ngIf="showForm">
   <h2>{{ editingId === null ? 'Enroll a new student' : 'Edit student #' + editingId }}</h2>
   <span class="form-sub">Attendance and exam scores are managed elsewhere and are preserved on edit.</span>
 
@@ -63,20 +63,22 @@
 </div>
 
 <div class="toolbar" *ngIf="!showForm">
-  <input
-    class="search-input"
-    type="text"
-    placeholder="Search by name, email, major, or group…"
-    [(ngModel)]="search"
-    name="search"
-  />
+  <div class="search-wrap">
+    <input
+      type="text"
+      placeholder="Search by name, email, major, or group…"
+      [(ngModel)]="search"
+      name="search"
+    />
+    <button class="search-clear" *ngIf="search" (click)="search = ''">✕</button>
+  </div>
   <button class="btn btn-primary" (click)="openCreate()">+ Enroll student</button>
 </div>
 
-<div class="loading-note" *ngIf="loading">Retrieving the roll…</div>
+<div class="loading-note" *ngIf="loading">Loading students…</div>
 
-<div class="sheet ledger-wrap" *ngIf="!loading && !showForm">
-  <table class="ledger">
+<div class="card table-wrap" *ngIf="!loading && !showForm">
+  <table class="data-table">
     <thead>
       <tr>
         <th>ID</th>
@@ -105,8 +107,8 @@
           </div>
         </td>
       </tr>
-      <tr class="empty-row" *ngIf="filtered.length === 0">
-        <td colspan="8">No students match this search.</td>
+      <tr *ngIf="filtered.length === 0">
+        <td colspan="8" class="empty-state">No students match this search.</td>
       </tr>
     </tbody>
   </table>

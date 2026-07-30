@@ -5,12 +5,15 @@
 <div class="sidebar-backdrop" [class.open]="sidebarOpen" (click)="closeSidebar()"></div>
 
 <div class="app-shell">
-  <aside class="spine" [class.open]="sidebarOpen">
-    <div class="spine-brand">
-      <div class="mark">Registrar's&nbsp;Office</div>
-      <div class="sub">School Management</div>
+  <aside class="sidebar" [class.open]="sidebarOpen">
+    <div class="sidebar-header">
+      <div class="brand">
+        <span class="brand-icon">🏫</span>
+        School Management
+      </div>
+      <div class="sub">Administration Portal</div>
     </div>
-    <ul class="spine-nav">
+    <ul class="sidebar-nav">
       <li *ngFor="let item of navItems">
         <a
           [routerLink]="item.path"
@@ -18,12 +21,13 @@
           [routerLinkActiveOptions]="{ exact: item.path === '/' }"
           (click)="closeSidebar()"
         >
-          <span class="no">{{ item.no }}</span>
-          <span>{{ item.label }}</span>
+          <span class="nav-icon">{{ item.icon }}</span>
+          <span class="nav-label">{{ item.label }}</span>
+          <span class="nav-badge">{{ item.no }}</span>
         </a>
       </li>
     </ul>
-    <div class="spine-foot">API · localhost:5073/api</div>
+    <div class="sidebar-footer">API · localhost:5073</div>
   </aside>
 
   <main class="canvas" (click)="closeSidebar()">

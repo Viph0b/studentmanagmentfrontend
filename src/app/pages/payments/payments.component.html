@@ -1,4 +1,4 @@
-<div class="page-head">
+<div class="page-header">
   <div>
     <span class="eyebrow">Register · 07</span>
     <h1>Fee payments</h1>
@@ -11,7 +11,7 @@
 
 <div class="banner banner-error" *ngIf="error">{{ error }}</div>
 
-<div class="sheet form-panel" *ngIf="showForm">
+<div class="card form-panel" *ngIf="showForm">
   <h2>{{ editingId === null ? 'Record a payment' : 'Edit payment #' + editingId }}</h2>
 
   <div class="banner banner-error" *ngIf="formError">{{ formError }}</div>
@@ -64,20 +64,22 @@
 </div>
 
 <div class="toolbar" *ngIf="!showForm">
-  <input
-    class="search-input"
-    type="text"
-    placeholder="Search by student ID, method, or status…"
-    [(ngModel)]="search"
-    name="search"
-  />
+  <div class="search-wrap">
+    <input
+      type="text"
+      placeholder="Search by student ID, method, or status…"
+      [(ngModel)]="search"
+      name="search"
+    />
+    <button class="search-clear" *ngIf="search" (click)="search = ''">✕</button>
+  </div>
   <button class="btn btn-primary" (click)="openCreate()">+ Record payment</button>
 </div>
 
-<div class="loading-note" *ngIf="loading">Retrieving ledger entries…</div>
+<div class="loading-note" *ngIf="loading">Loading payments…</div>
 
-<div class="sheet ledger-wrap" *ngIf="!loading && !showForm">
-  <table class="ledger">
+<div class="card table-wrap" *ngIf="!loading && !showForm">
+  <table class="data-table">
     <thead>
       <tr>
         <th>Payment ID</th>
@@ -99,7 +101,7 @@
         <td class="mono">{{ p.paymentDate | slice:0:10 }}</td>
         <td>{{ p.paymentMethod }}</td>
         <td>
-          <span class="stamp" [ngClass]="isPaid(p.status) ? 'stamp-good' : 'stamp-bad'">{{ p.status }}</span>
+          <span class="badge" [ngClass]="isPaid(p.status) ? 'badge-success' : 'badge-danger'">{{ p.status }}</span>
         </td>
         <td>
           <div class="row-actions">
@@ -108,8 +110,8 @@
           </div>
         </td>
       </tr>
-      <tr class="empty-row" *ngIf="filtered.length === 0">
-        <td colspan="8">No payments match this search.</td>
+      <tr *ngIf="filtered.length === 0">
+        <td colspan="8" class="empty-state">No payments match this search.</td>
       </tr>
     </tbody>
   </table>

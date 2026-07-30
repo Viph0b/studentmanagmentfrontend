@@ -1,4 +1,4 @@
-<div class="page-head">
+<div class="page-header">
   <div>
     <span class="eyebrow">Register · 03</span>
     <h1>Teachers</h1>
@@ -11,7 +11,7 @@
 
 <div class="banner banner-error" *ngIf="error">{{ error }}</div>
 
-<div class="sheet form-panel" *ngIf="showForm">
+<div class="card form-panel" *ngIf="showForm">
   <h2>{{ editingId === null ? 'Add a teacher' : 'Edit teacher #' + editingId }}</h2>
   <span class="form-sub">Separate multiple subjects with commas.</span>
 
@@ -59,20 +59,22 @@
 </div>
 
 <div class="toolbar" *ngIf="!showForm">
-  <input
-    class="search-input"
-    type="text"
-    placeholder="Search by name or subject…"
-    [(ngModel)]="search"
-    name="search"
-  />
+  <div class="search-wrap">
+    <input
+      type="text"
+      placeholder="Search by name or subject…"
+      [(ngModel)]="search"
+      name="search"
+    />
+    <button class="search-clear" *ngIf="search" (click)="search = ''">✕</button>
+  </div>
   <button class="btn btn-primary" (click)="openCreate()">+ Add teacher</button>
 </div>
 
-<div class="loading-note" *ngIf="loading">Retrieving faculty roster…</div>
+<div class="loading-note" *ngIf="loading">Loading teachers…</div>
 
-<div class="sheet ledger-wrap" *ngIf="!loading && !showForm">
-  <table class="ledger">
+<div class="card table-wrap" *ngIf="!loading && !showForm">
+  <table class="data-table">
     <thead>
       <tr>
         <th>ID</th>
@@ -101,8 +103,8 @@
           </div>
         </td>
       </tr>
-      <tr class="empty-row" *ngIf="filtered.length === 0">
-        <td colspan="7">No teachers match this search.</td>
+      <tr *ngIf="filtered.length === 0">
+        <td colspan="7" class="empty-state">No teachers match this search.</td>
       </tr>
     </tbody>
   </table>

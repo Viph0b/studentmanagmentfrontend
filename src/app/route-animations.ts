@@ -7,8 +7,8 @@ import {
   group,
 } from '@angular/animations';
 
-const DURATION = '0.3s';
-const EASING = 'cubic-bezier(0.16, 1, 0.3, 1)';
+const DURATION = '0.25s';
+const EASING = 'cubic-bezier(0.4, 0, 0.2, 1)';
 
 export const routeAnimations = trigger('routeAnimations', [
   transition('* <=> *', [

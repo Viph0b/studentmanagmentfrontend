@@ -1,4 +1,4 @@
-<div class="page-head">
+<div class="page-header">
   <div>
     <span class="eyebrow">Register · 05</span>
     <h1>Groups</h1>
@@ -11,7 +11,7 @@
 
 <div class="banner banner-error" *ngIf="error">{{ error }}</div>
 
-<div class="sheet form-panel" *ngIf="showForm">
+<div class="card form-panel" *ngIf="showForm">
   <h2>{{ editingId === null ? 'Add a group' : 'Edit group #' + editingId }}</h2>
 
   <div class="banner banner-error" *ngIf="formError">{{ formError }}</div>
@@ -65,20 +65,22 @@
 </div>
 
 <div class="toolbar" *ngIf="!showForm">
-  <input
-    class="search-input"
-    type="text"
-    placeholder="Search by group, major, or status…"
-    [(ngModel)]="search"
-    name="search"
-  />
+  <div class="search-wrap">
+    <input
+      type="text"
+      placeholder="Search by group, major, or status…"
+      [(ngModel)]="search"
+      name="search"
+    />
+    <button class="search-clear" *ngIf="search" (click)="search = ''">✕</button>
+  </div>
   <button class="btn btn-primary" (click)="openCreate()">+ Add group</button>
 </div>
 
-<div class="loading-note" *ngIf="loading">Retrieving cohorts…</div>
+<div class="loading-note" *ngIf="loading">Loading groups…</div>
 
-<div class="sheet ledger-wrap" *ngIf="!loading && !showForm">
-  <table class="ledger">
+<div class="card table-wrap" *ngIf="!loading && !showForm">
+  <table class="data-table">
     <thead>
       <tr>
         <th>ID</th>
@@ -102,7 +104,7 @@
         <td class="mono">{{ g.academicYear }}</td>
         <td>{{ g.shift }}</td>
         <td>
-          <span class="stamp" [ngClass]="g.status === 'Active' ? 'stamp-good' : 'stamp-bad'">{{ g.status }}</span>
+          <span class="badge" [ngClass]="g.status === 'Active' ? 'badge-success' : 'badge-danger'">{{ g.status }}</span>
         </td>
         <td>
           <div class="row-actions">
@@ -111,8 +113,8 @@
           </div>
         </td>
       </tr>
-      <tr class="empty-row" *ngIf="filtered.length === 0">
-        <td colspan="9">No groups match this search.</td>
+      <tr *ngIf="filtered.length === 0">
+        <td colspan="9" class="empty-state">No groups match this search.</td>
       </tr>
     </tbody>
   </table>

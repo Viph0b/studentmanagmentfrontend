@@ -1,4 +1,4 @@
-<div class="page-head">
+<div class="page-header">
   <div>
     <span class="eyebrow">Register · 06</span>
     <h1>Class schedule</h1>
@@ -11,7 +11,7 @@
 
 <div class="banner banner-error" *ngIf="error">{{ error }}</div>
 
-<div class="sheet form-panel" *ngIf="showForm">
+<div class="card form-panel" *ngIf="showForm">
   <h2>{{ editingId === null ? 'Schedule a class' : 'Edit schedule #' + editingId }}</h2>
 
   <div class="banner banner-error" *ngIf="formError">{{ formError }}</div>
@@ -84,20 +84,22 @@
 </div>
 
 <div class="toolbar" *ngIf="!showForm">
-  <input
-    class="search-input"
-    type="text"
-    placeholder="Search by group, subject, teacher, or room…"
-    [(ngModel)]="search"
-    name="search"
-  />
+  <div class="search-wrap">
+    <input
+      type="text"
+      placeholder="Search by group, subject, teacher, or room…"
+      [(ngModel)]="search"
+      name="search"
+    />
+    <button class="search-clear" *ngIf="search" (click)="search = ''">✕</button>
+  </div>
   <button class="btn btn-primary" (click)="openCreate()">+ Add session</button>
 </div>
 
-<div class="loading-note" *ngIf="loading">Retrieving timetable…</div>
+<div class="loading-note" *ngIf="loading">Loading schedule…</div>
 
-<div class="sheet ledger-wrap" *ngIf="!loading && !showForm">
-  <table class="ledger">
+<div class="card table-wrap" *ngIf="!loading && !showForm">
+  <table class="data-table">
     <thead>
       <tr>
         <th>ID</th>
@@ -128,8 +130,8 @@
           </div>
         </td>
       </tr>
-      <tr class="empty-row" *ngIf="filtered.length === 0">
-        <td colspan="9">No sessions match this search.</td>
+      <tr *ngIf="filtered.length === 0">
+        <td colspan="9" class="empty-state">No sessions match this search.</td>
       </tr>
     </tbody>
   </table>

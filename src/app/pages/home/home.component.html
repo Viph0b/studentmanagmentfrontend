@@ -1,22 +1,23 @@
-<div class="page-head">
+<div class="page-header">
   <div>
-    <span class="eyebrow">Registrar's overview</span>
-    <h1>Today's ledger</h1>
+    <span class="eyebrow">Dashboard</span>
+    <h1>Overview</h1>
   </div>
 </div>
 
 <div class="banner banner-error" *ngIf="error">{{ error }}</div>
-<div class="loading-note" *ngIf="loading && !error">Tallying records…</div>
+<div class="loading-note" *ngIf="loading && !error">Loading records…</div>
 
-<div class="home-grid" *ngIf="!loading || error">
+<div class="dashboard-grid" *ngIf="!loading || error">
   <a
-    class="sheet tile"
+    class="dashboard-tile"
     *ngFor="let t of tiles"
     [routerLink]="t.path"
   >
-    <span class="no mono">{{ t.no }}</span>
+    <span class="tile-icon">{{ t.icon }}</span>
+    <span class="tile-no mono">{{ t.no }}</span>
     <h3>{{ t.label }}</h3>
-    <p class="desc">{{ t.desc }}</p>
-    <span class="count mono">{{ t.count === null ? '—' : t.count }}</span>
+    <p class="tile-desc">{{ t.desc }}</p>
+    <span class="tile-count">{{ t.count === null ? '—' : t.count }}</span>
   </a>
 </div>
