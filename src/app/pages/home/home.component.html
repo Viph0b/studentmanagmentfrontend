@@ -14,7 +14,11 @@
     *ngFor="let t of tiles"
     [routerLink]="t.path"
   >
-    <span class="tile-icon">{{ t.icon }}</span>
+    <span class="tile-icon">
+      <svg class="icon" viewBox="0 0 256 256" fill="currentColor">
+        <path [attr.d]="t.icon"/>
+      </svg>
+    </span>
     <span class="tile-no mono">{{ t.no }}</span>
     <h3>{{ t.label }}</h3>
     <p class="tile-desc">{{ t.desc }}</p>

@@ -1,5 +1,8 @@
 <button class="hamburger" (click)="toggleSidebar()" aria-label="Toggle navigation">
-  {{ sidebarOpen ? '✕' : '☰' }}
+  <svg class="icon" viewBox="0 0 256 256" fill="currentColor">
+    <path *ngIf="!sidebarOpen" d="M224,128a8,8,0,0,1-8,8H40a8,8,0,0,1,0-16H216A8,8,0,0,1,224,128ZM40,72H216a8,8,0,0,0,0-16H40a8,8,0,0,0,0,16ZM216,184H40a8,8,0,0,0,0,16H216a8,8,0,0,0,0-16Z"/>
+    <path *ngIf="sidebarOpen" d="M205.66,194.34a8,8,0,0,1-11.32,11.32L128,139.31,61.66,205.66a8,8,0,0,1-11.32-11.32L116.69,128,50.34,61.66A8,8,0,0,1,61.66,50.34L128,116.69l66.34-66.35a8,8,0,0,1,11.32,11.32L139.31,128Z"/>
+  </svg>
 </button>
 
 <div class="sidebar-backdrop" [class.open]="sidebarOpen" (click)="closeSidebar()"></div>
@@ -8,7 +11,11 @@
   <aside class="sidebar" [class.open]="sidebarOpen">
     <div class="sidebar-header">
       <div class="brand">
-        <span class="brand-icon">🏫</span>
+        <span class="brand-icon">
+          <svg class="icon" viewBox="0 0 256 256" fill="currentColor">
+            <path d="M219.31,108.68l-80-80a16,16,0,0,0-22.62,0l-80,80A15.87,15.87,0,0,0,32,120v96a8,8,0,0,0,8,8h64a8,8,0,0,0,8-8V160h32v56a8,8,0,0,0,8,8h64a8,8,0,0,0,8-8V120A15.87,15.87,0,0,0,219.31,108.68ZM208,208H160V152a8,8,0,0,0-8-8H104a8,8,0,0,0-8,8v56H48V120l80-80,80,80Z"/>
+          </svg>
+        </span>
         School Management
       </div>
       <div class="sub">Administration Portal</div>
@@ -21,7 +28,11 @@
           [routerLinkActiveOptions]="{ exact: item.path === '/' }"
           (click)="closeSidebar()"
         >
-          <span class="nav-icon">{{ item.icon }}</span>
+          <span class="nav-icon">
+            <svg class="icon" viewBox="0 0 256 256" fill="currentColor">
+              <path [attr.d]="item.icon"/>
+            </svg>
+          </span>
           <span class="nav-label">{{ item.label }}</span>
           <span class="nav-badge">{{ item.no }}</span>
         </a>
@@ -37,7 +48,6 @@
   </main>
 </div>
 
-<!-- Toast container -->
 <div class="toast-container" *ngIf="toasts.length > 0">
   <div
     class="toast"
@@ -47,17 +57,20 @@
     *ngFor="let t of toasts"
   >
     <span>{{ t.message }}</span>
-    <button class="toast-close" (click)="dismissToast(t.id)">✕</button>
+    <button class="toast-close" (click)="dismissToast(t.id)">
+      <svg class="icon" viewBox="0 0 256 256" fill="currentColor">
+        <path d="M205.66,194.34a8,8,0,0,1-11.32,11.32L128,139.31,61.66,205.66a8,8,0,0,1-11.32-11.32L116.69,128,50.34,61.66A8,8,0,0,1,61.66,50.34L128,116.69l66.34-66.35a8,8,0,0,1,11.32,11.32L139.31,128Z"/>
+      </svg>
+    </button>
   </div>
 </div>
 
-<!-- Confirm dialog -->
 <div class="modal-overlay" *ngIf="confirm" (click)="onConfirm(false)">
   <div class="modal-dialog" (click)="$event.stopPropagation()">
     <h3>{{ confirm.title }}</h3>
     <p>{{ confirm.message }}</p>
     <div class="modal-actions">
-      <button class="btn btn-ghost" (click)="onConfirm(false)">{{ confirm.cancelLabel || 'Cancel' }}</button>
+      <button class="btn" (click)="onConfirm(false)">{{ confirm.cancelLabel || 'Cancel' }}</button>
       <button
         class="btn"
         [class.btn-danger]="confirm.danger"
