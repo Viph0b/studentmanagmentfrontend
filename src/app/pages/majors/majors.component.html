@@ -12,8 +12,10 @@
 <div class="banner banner-error" *ngIf="error">{{ error }}</div>
 
 <div class="card form-panel" *ngIf="showForm">
-  <h2>{{ editingId === null ? 'Add a major' : 'Edit major #' + editingId }}</h2>
-  <span class="form-sub">Separate multiple subjects or groups with commas.</span>
+  <h2>{{ editingId === null ? "Add a major" : "Edit major #" + editingId }}</h2>
+  <span class="form-sub"
+    >Separate multiple subjects or groups with commas.</span
+  >
 
   <div class="banner banner-error" *ngIf="formError">{{ formError }}</div>
 
@@ -21,27 +23,54 @@
     <div class="form-grid">
       <div class="field span-2">
         <label for="majorName">Program name</label>
-        <input id="majorName" name="majorName" type="text" [(ngModel)]="draft.majorName" required />
+        <input
+          id="majorName"
+          name="majorName"
+          type="text"
+          [(ngModel)]="draft.majorName"
+          required
+        />
       </div>
       <div class="field">
         <label for="pricePerSemester">Price per semester ($)</label>
-        <input id="pricePerSemester" name="pricePerSemester" type="number" min="0" [(ngModel)]="draft.pricePerSemester" />
+        <input
+          id="pricePerSemester"
+          name="pricePerSemester"
+          type="number"
+          min="0"
+          [(ngModel)]="draft.pricePerSemester"
+        />
       </div>
       <div class="field">
         <label for="groupText">Groups</label>
-        <input id="groupText" name="groupText" type="text" [(ngModel)]="draft.groupText" placeholder="e.g. C01, C02" />
+        <input
+          id="groupText"
+          name="groupText"
+          type="text"
+          [(ngModel)]="draft.groupText"
+          placeholder="e.g. C01, C02"
+        />
       </div>
       <div class="field span-2">
         <label for="subjectsText">Subjects</label>
-        <textarea id="subjectsText" name="subjectsText" [(ngModel)]="draft.subjectsText" placeholder="e.g. C++, C#, Networking"></textarea>
+        <textarea
+          id="subjectsText"
+          name="subjectsText"
+          [(ngModel)]="draft.subjectsText"
+          placeholder="e.g. C++, C#, Networking"
+        ></textarea>
       </div>
     </div>
 
     <div class="form-actions">
       <button type="submit" class="btn btn-primary" [disabled]="saving">
-        {{ saving ? 'Saving…' : (editingId === null ? 'Add major' : 'Save changes') }}
+        {{
+          saving ? "Saving…" : editingId === null ? "Add major" : "Save changes"
+        }}
       </button>
-      <button type="button" class="btn btn-ghost" (click)="cancelForm()">Cancel</button>
+      <button type="button" class="btn btn-ghost" (click)="cancelForm()">
+        Cancel
+      </button>
     </div>
   </form>
 </div>
@@ -56,7 +85,9 @@
     />
     <button class="search-clear" *ngIf="search" (click)="search = ''">
       <svg class="icon" viewBox="0 0 256 256" fill="currentColor">
-        <path d="M205.66,194.34a8,8,0,0,1-11.32,11.32L128,139.31,61.66,205.66a8,8,0,0,1-11.32-11.32L116.69,128,50.34,61.66A8,8,0,0,1,61.66,50.34L128,116.69l66.34-66.35a8,8,0,0,1,11.32,11.32L139.31,128Z"/>
+        <path
+          d="M205.66,194.34a8,8,0,0,1-11.32,11.32L128,139.31,61.66,205.66a8,8,0,0,1-11.32-11.32L116.69,128,50.34,61.66A8,8,0,0,1,61.66,50.34L128,116.69l66.34-66.35a8,8,0,0,1,11.32,11.32L139.31,128Z"
+        />
       </svg>
     </button>
   </div>
@@ -90,8 +121,12 @@
         </td>
         <td>
           <div class="row-actions">
-            <button class="btn btn-ghost btn-sm" (click)="openEdit(m)">Edit</button>
-            <button class="btn btn-danger btn-sm" (click)="remove(m)">Delete</button>
+            <button class="btn btn-ghost btn-sm" (click)="openEdit(m)">
+              Edit
+            </button>
+            <button class="btn btn-danger btn-sm" (click)="remove(m)">
+              Delete
+            </button>
           </div>
         </td>
       </tr>

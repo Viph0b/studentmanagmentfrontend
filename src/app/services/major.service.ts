@@ -1,11 +1,11 @@
-import { HttpClient } from '@angular/common/http';
-import { Injectable } from '@angular/core';
-import { Observable } from 'rxjs';
+import { HttpClient } from "@angular/common/http";
+import { Injectable } from "@angular/core";
+import { Observable } from "rxjs";
 
-import { API_BASE_URL } from '../api-config';
-import { Major } from '../models/major.model';
+import { API_BASE_URL } from "../api-config";
+import { Major } from "../models/major.model";
 
-@Injectable({ providedIn: 'root' })
+@Injectable({ providedIn: "root" })
 export class MajorService {
   private readonly baseUrl = `${API_BASE_URL}/Major`;
 
@@ -27,7 +27,9 @@ export class MajorService {
     return this.http.put<Major>(`${this.baseUrl}/${majorId}`, major);
   }
 
-  delete(majorId: number): Observable<unknown> {
-    return this.http.delete(`${this.baseUrl}/${majorId}`);
+  delete(majorId: number): Observable<string | null> {
+    return this.http.delete(`${this.baseUrl}/${majorId}`, {
+      responseType: "text",
+    });
   }
 }
