@@ -35,9 +35,16 @@
         <label for="dateOfBirth">Date of birth</label>
         <input id="dateOfBirth" name="dateOfBirth" type="date" [(ngModel)]="draft.dateOfBirth" />
       </div>
-      <div class="field">
+      <div class="field" [ngClass]="{ 'has-error': phoneError }">
         <label for="phoneNumber">Phone number</label>
-        <input id="phoneNumber" name="phoneNumber" type="text" [(ngModel)]="draft.phoneNumber" />
+        <input
+          id="phoneNumber"
+          name="phoneNumber"
+          type="text"
+          [(ngModel)]="draft.phoneNumber"
+          (ngModelChange)="phoneError = ''"
+        />
+        <span class="field-error" *ngIf="phoneError">{{ phoneError }}</span>
       </div>
       <div class="field">
         <label for="salary">Monthly salary ($)</label>

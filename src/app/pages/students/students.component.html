@@ -12,8 +12,15 @@
 <div class="banner banner-error" *ngIf="error">{{ error }}</div>
 
 <div class="card form-panel" *ngIf="showForm">
-  <h2>{{ editingId === null ? 'Enroll a new student' : 'Edit student #' + editingId }}</h2>
-  <span class="form-sub">Attendance and exam scores are managed elsewhere and are preserved on edit.</span>
+  <h2>
+    {{
+      editingId === null ? "Enroll a new student" : "Edit student #" + editingId
+    }}
+  </h2>
+  <span class="form-sub"
+    >Attendance and exam scores are managed elsewhere and are preserved on
+    edit.</span
+  >
 
   <div class="banner banner-error" *ngIf="formError">{{ formError }}</div>
 
@@ -21,7 +28,13 @@
     <div class="form-grid">
       <div class="field span-2">
         <label for="studentName">Full name</label>
-        <input id="studentName" name="studentName" type="text" [(ngModel)]="draft.studentName" required />
+        <input
+          id="studentName"
+          name="studentName"
+          type="text"
+          [(ngModel)]="draft.studentName"
+          required
+        />
       </div>
       <div class="field">
         <label for="gender">Gender</label>
@@ -33,31 +46,64 @@
       </div>
       <div class="field">
         <label for="dateOfBirth">Date of birth</label>
-        <input id="dateOfBirth" name="dateOfBirth" type="date" [(ngModel)]="draft.dateOfBirth" />
+        <input
+          id="dateOfBirth"
+          name="dateOfBirth"
+          type="date"
+          [(ngModel)]="draft.dateOfBirth"
+        />
       </div>
-      <div class="field">
+      <div class="field" [ngClass]="{ 'has-error': phoneError }">
         <label for="phoneNumber">Phone number</label>
-        <input id="phoneNumber" name="phoneNumber" type="text" [(ngModel)]="draft.phoneNumber" />
+        <input
+          id="phoneNumber"
+          name="phoneNumber"
+          type="text"
+          [(ngModel)]="draft.phoneNumber"
+          (ngModelChange)="phoneError = ''"
+        />
+        <span class="field-error" *ngIf="phoneError">{{ phoneError }}</span>
       </div>
-      <div class="field">
+      <div class="field" [ngClass]="{ 'has-error': emailError }">
         <label for="email">Email</label>
-        <input id="email" name="email" type="email" [(ngModel)]="draft.email" />
+        <input
+          id="email"
+          name="email"
+          type="email"
+          [(ngModel)]="draft.email"
+          (ngModelChange)="emailError = ''"
+        />
+        <span class="field-error" *ngIf="emailError">{{ emailError }}</span>
       </div>
       <div class="field">
         <label for="major">Major</label>
-        <input id="major" name="major" type="text" [(ngModel)]="draft.major" placeholder="e.g. MIS" />
+        <select id="major" name="major" [(ngModel)]="draft.major">
+          <option value="" disabled>Select a major</option>
+          <option *ngFor="let m of majorNames" [value]="m">{{ m }}</option>
+        </select>
       </div>
       <div class="field">
         <label for="groupName">Group</label>
-        <input id="groupName" name="groupName" type="text" [(ngModel)]="draft.groupName" placeholder="e.g. C01" />
+        <select id="groupName" name="groupName" [(ngModel)]="draft.groupName">
+          <option value="" disabled>Select a group</option>
+          <option *ngFor="let g of groupNames" [value]="g">{{ g }}</option>
+        </select>
       </div>
     </div>
 
     <div class="form-actions">
       <button type="submit" class="btn btn-primary" [disabled]="saving">
-        {{ saving ? 'Saving…' : (editingId === null ? 'Add student' : 'Save changes') }}
+        {{
+          saving
+            ? "Saving…"
+            : editingId === null
+              ? "Add student"
+              : "Save changes"
+        }}
       </button>
-      <button type="button" class="btn btn-ghost" (click)="cancelForm()">Cancel</button>
+      <button type="button" class="btn btn-ghost" (click)="cancelForm()">
+        Cancel
+      </button>
     </div>
   </form>
 </div>
@@ -72,11 +118,15 @@
     />
     <button class="search-clear" *ngIf="search" (click)="search = ''">
       <svg class="icon" viewBox="0 0 256 256" fill="currentColor">
-        <path d="M205.66,194.34a8,8,0,0,1-11.32,11.32L128,139.31,61.66,205.66a8,8,0,0,1-11.32-11.32L116.69,128,50.34,61.66A8,8,0,0,1,61.66,50.34L128,116.69l66.34-66.35a8,8,0,0,1,11.32,11.32L139.31,128Z"/>
+        <path
+          d="M205.66,194.34a8,8,0,0,1-11.32,11.32L128,139.31,61.66,205.66a8,8,0,0,1-11.32-11.32L116.69,128,50.34,61.66A8,8,0,0,1,61.66,50.34L128,116.69l66.34-66.35a8,8,0,0,1,11.32,11.32L139.31,128Z"
+        />
       </svg>
     </button>
   </div>
-  <button class="btn btn-primary" (click)="openCreate()">+ Enroll student</button>
+  <button class="btn btn-primary" (click)="openCreate()">
+    + Enroll student
+  </button>
 </div>
 
 <div class="loading-note" *ngIf="loading">Loading students…</div>
@@ -100,14 +150,20 @@
         <td class="mono">{{ s.studentId }}</td>
         <td>{{ s.studentName }}</td>
         <td>{{ s.gender }}</td>
-        <td><span class="chip">{{ s.groupName || '—' }}</span></td>
-        <td>{{ s.major || '—' }}</td>
-        <td class="mono">{{ s.phoneNumber || '—' }}</td>
-        <td>{{ s.email || '—' }}</td>
+        <td>
+          <span class="chip">{{ s.groupName || "—" }}</span>
+        </td>
+        <td>{{ s.major || "—" }}</td>
+        <td class="mono">{{ s.phoneNumber || "—" }}</td>
+        <td>{{ s.email || "—" }}</td>
         <td>
           <div class="row-actions">
-            <button class="btn btn-ghost btn-sm" (click)="openEdit(s)">Edit</button>
-            <button class="btn btn-danger btn-sm" (click)="remove(s)">Delete</button>
+            <button class="btn btn-ghost btn-sm" (click)="openEdit(s)">
+              Edit
+            </button>
+            <button class="btn btn-danger btn-sm" (click)="remove(s)">
+              Delete
+            </button>
           </div>
         </td>
       </tr>

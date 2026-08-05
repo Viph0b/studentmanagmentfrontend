@@ -1,11 +1,11 @@
-import { HttpClient } from '@angular/common/http';
-import { Injectable } from '@angular/core';
-import { Observable } from 'rxjs';
+import { HttpClient } from "@angular/common/http";
+import { Injectable } from "@angular/core";
+import { Observable } from "rxjs";
 
-import { API_BASE_URL } from '../api-config';
-import { Group } from '../models/group.model';
+import { API_BASE_URL } from "../api-config";
+import { Group } from "../models/group.model";
 
-@Injectable({ providedIn: 'root' })
+@Injectable({ providedIn: "root" })
 export class GroupService {
   private readonly baseUrl = `${API_BASE_URL}/Group`;
 
@@ -13,6 +13,10 @@ export class GroupService {
 
   getAll(): Observable<Group[]> {
     return this.http.get<Group[]>(this.baseUrl);
+  }
+
+  getNames(): Observable<string[]> {
+    return this.http.get<string[]>(`${this.baseUrl}/getgroupnames`);
   }
 
   getById(groupId: number): Observable<Group> {

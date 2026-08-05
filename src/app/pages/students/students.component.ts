@@ -1,11 +1,13 @@
-import { CommonModule } from '@angular/common';
-import { Component, OnInit } from '@angular/core';
-import { FormsModule } from '@angular/forms';
+import { CommonModule } from "@angular/common";
+import { Component, OnInit } from "@angular/core";
+import { FormsModule } from "@angular/forms";
 
-import { StudentService } from '../../services/student.service';
-import { ToastService } from '../../services/toast.service';
-import { ConfirmService } from '../../services/confirm.service';
-import { Student } from '../../models/student.model';
+import { StudentService } from "../../services/student.service";
+import { MajorService } from "../../services/major.service";
+import { GroupService } from "../../services/group.service";
+import { ToastService } from "../../services/toast.service";
+import { ConfirmService } from "../../services/confirm.service";
+import { Student } from "../../models/student.model";
 
 type StudentDraft = {
   studentName: string;
@@ -18,47 +20,55 @@ type StudentDraft = {
 };
 
 const BLANK: StudentDraft = {
-  studentName: '',
-  gender: 'Male',
-  dateOfBirth: '',
-  phoneNumber: '',
-  email: '',
-  major: '',
-  groupName: '',
+  studentName: "",
+  gender: "Male",
+  dateOfBirth: "",
+  phoneNumber: "",
+  email: "",
+  major: "",
+  groupName: "",
 };
 
 @Component({
-  selector: 'app-students',
+  selector: "app-students",
   standalone: true,
   imports: [CommonModule, FormsModule],
-  templateUrl: './students.component.html',
+  templateUrl: "./students.component.html",
 })
 export class StudentsComponent implements OnInit {
   students: Student[] = [];
   loading = true;
-  error = '';
+  error = "";
 
-  search = '';
+  majorNames: string[] = [];
+  groupNames: string[] = [];
+
+  search = "";
 
   showForm = false;
   editingId: number | null = null;
   draft: StudentDraft = { ...BLANK };
   saving = false;
-  formError = '';
+  formError = "";
+  emailError = "";
+  phoneError = "";
 
   constructor(
     private studentSvc: StudentService,
+    private majorSvc: MajorService,
+    private groupSvc: GroupService,
     private toastSvc: ToastService,
-    private confirmSvc: ConfirmService
+    private confirmSvc: ConfirmService,
   ) {}
 
   ngOnInit(): void {
     this.load();
+    this.loadLookups();
   }
 
   load(): void {
     this.loading = true;
-    this.error = '';
+    this.error = "";
     this.studentSvc.getAll().subscribe({
       next: (data) => {
         this.students = data;
@@ -66,9 +76,21 @@ export class StudentsComponent implements OnInit {
       },
       error: () => {
         this.error =
-          'Could not load students. Confirm the API is running at http://localhost:5073.';
+          "Could not load students. Confirm the API is running at http://localhost:5073.";
         this.loading = false;
       },
+    });
+  }
+
+  loadLookups(): void {
+    this.majorSvc.getNames().subscribe({
+      next: (names) => (this.majorNames = names),
+      error: () => (this.majorNames = []),
+    });
+
+    this.groupSvc.getNames().subscribe({
+      next: (names) => (this.groupNames = names),
+      error: () => (this.groupNames = []),
     });
   }
 
@@ -81,14 +103,16 @@ export class StudentsComponent implements OnInit {
         s.email?.toLowerCase().includes(q) ||
         s.major?.toLowerCase().includes(q) ||
         s.groupName?.toLowerCase().includes(q) ||
-        String(s.studentId).includes(q)
+        String(s.studentId).includes(q),
     );
   }
 
   openCreate(): void {
     this.editingId = null;
     this.draft = { ...BLANK };
-    this.formError = '';
+    this.formError = "";
+    this.emailError = "";
+    this.phoneError = "";
     this.showForm = true;
   }
 
@@ -97,28 +121,48 @@ export class StudentsComponent implements OnInit {
     this.draft = {
       studentName: s.studentName,
       gender: s.gender,
-      dateOfBirth: s.dateOfBirth ? s.dateOfBirth.substring(0, 10) : '',
+      dateOfBirth: s.dateOfBirth ? s.dateOfBirth.substring(0, 10) : "",
       phoneNumber: s.phoneNumber,
       email: s.email,
       major: s.major,
       groupName: s.groupName,
     };
-    this.formError = '';
+    this.formError = "";
+    this.emailError = "";
+    this.phoneError = "";
     this.showForm = true;
   }
 
   cancelForm(): void {
     this.showForm = false;
-    this.formError = '';
+    this.formError = "";
+    this.emailError = "";
+    this.phoneError = "";
   }
 
   save(): void {
     if (!this.draft.studentName.trim()) {
-      this.formError = 'Student name is required.';
+      this.formError = "Student name is required.";
       return;
     }
+
+    this.emailError = "";
+    this.phoneError = "";
+    const email = this.draft.email.trim();
+    const phone = this.draft.phoneNumber.trim();
+    if (email && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+      this.emailError = "Enter a valid email (e.g. name@example.com).";
+      return;
+    }
+    if (phone) {
+      const digits = phone.replace(/[\s().-]/g, "");
+      if (!/^\+?\d{8,15}$/.test(digits)) {
+        this.phoneError = "Enter a valid phone number (8–15 digits).";
+        return;
+      }
+    }
     this.saving = true;
-    this.formError = '';
+    this.formError = "";
 
     if (this.editingId === null) {
       const payload: Student = {
@@ -134,12 +178,12 @@ export class StudentsComponent implements OnInit {
         exams: [],
       };
       this.studentSvc.create(payload).subscribe({
-        next: () => this.onSaved('Student added.'),
+        next: () => this.onSaved("Student added."),
         error: () => this.onSaveError(),
       });
     } else {
       const existing = this.students.find(
-        (s) => s.studentId === this.editingId
+        (s) => s.studentId === this.editingId,
       );
       const payload: Student = {
         id: existing?.id,
@@ -155,7 +199,7 @@ export class StudentsComponent implements OnInit {
         exams: existing?.exams ?? [],
       };
       this.studentSvc.update(this.editingId, payload).subscribe({
-        next: () => this.onSaved('Student updated.'),
+        next: () => this.onSaved("Student updated."),
         error: () => this.onSaveError(),
       });
     }
@@ -166,30 +210,33 @@ export class StudentsComponent implements OnInit {
     this.showForm = false;
     this.toastSvc.success(msg);
     this.load();
+    this.loadLookups();
   }
 
   private onSaveError(): void {
     this.saving = false;
-    this.formError = 'Save failed. Check the API connection and try again.';
+    this.formError = "Save failed. Check the API connection and try again.";
   }
 
   remove(s: Student): void {
-    this.confirmSvc.confirm({
-      title: 'Remove student',
-      message: `Remove ${s.studentName} (ID ${s.studentId})? This cannot be undone.`,
-      confirmLabel: 'Remove',
-      danger: true,
-    }).subscribe((confirmed) => {
-      if (!confirmed) return;
-      this.studentSvc.delete(s.studentId).subscribe({
-        next: () => {
-          this.toastSvc.success('Student removed.');
-          this.load();
-        },
-        error: () => {
-          this.toastSvc.error('Delete failed. Please try again.');
-        },
+    this.confirmSvc
+      .confirm({
+        title: "Remove student",
+        message: `Remove ${s.studentName} (ID ${s.studentId})? This cannot be undone.`,
+        confirmLabel: "Remove",
+        danger: true,
+      })
+      .subscribe((confirmed) => {
+        if (!confirmed) return;
+        this.studentSvc.delete(s.studentId).subscribe({
+          next: () => {
+            this.toastSvc.success("Student removed.");
+            this.load();
+          },
+          error: () => {
+            this.toastSvc.error("Delete failed. Please try again.");
+          },
+        });
       });
-    });
   }
 }

@@ -42,6 +42,7 @@ export class TeachersComponent implements OnInit {
   draft: TeacherDraft = { ...BLANK };
   saving = false;
   formError = '';
+  phoneError = '';
 
   constructor(
     private teacherSvc: TeacherService,
@@ -83,6 +84,7 @@ export class TeachersComponent implements OnInit {
     this.editingId = null;
     this.draft = { ...BLANK };
     this.formError = '';
+    this.phoneError = '';
     this.showForm = true;
   }
 
@@ -97,12 +99,14 @@ export class TeachersComponent implements OnInit {
       salary: t.salary,
     };
     this.formError = '';
+    this.phoneError = '';
     this.showForm = true;
   }
 
   cancelForm(): void {
     this.showForm = false;
     this.formError = '';
+    this.phoneError = '';
   }
 
   private subjectsArray(): string[] {
@@ -116,6 +120,15 @@ export class TeachersComponent implements OnInit {
     if (!this.draft.teacherName.trim()) {
       this.formError = 'Teacher name is required.';
       return;
+    }
+    this.phoneError = '';
+    const phone = this.draft.phoneNumber.trim();
+    if (phone) {
+      const digits = phone.replace(/[\s().-]/g, '');
+      if (!/^\+?\d{8,15}$/.test(digits)) {
+        this.phoneError = 'Enter a valid phone number (8–15 digits).';
+        return;
+      }
     }
     this.saving = true;
     this.formError = '';

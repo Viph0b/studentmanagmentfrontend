@@ -15,6 +15,10 @@ export class MajorService {
     return this.http.get<Major[]>(this.baseUrl);
   }
 
+  getNames(): Observable<string[]> {
+    return this.http.get<string[]>(`${this.baseUrl}/getmajornames`);
+  }
+
   getById(majorId: number): Observable<Major> {
     return this.http.get<Major>(`${this.baseUrl}/${majorId}`);
   }
