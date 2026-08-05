@@ -3,6 +3,7 @@ import { Component, OnInit } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 
 import { GroupService } from '../../services/group.service';
+import { MajorService } from '../../services/major.service';
 import { ToastService } from '../../services/toast.service';
 import { ConfirmService } from '../../services/confirm.service';
 import { Group } from '../../models/group.model';
@@ -39,6 +40,9 @@ export class GroupsComponent implements OnInit {
   error = '';
   search = '';
 
+  majorNames: string[] = [];
+  semesterOptions = [1, 2, 3, 4, 5, 6, 7, 8];
+
   showForm = false;
   editingId: number | null = null;
   draft: GroupDraft = { ...BLANK };
@@ -47,12 +51,21 @@ export class GroupsComponent implements OnInit {
 
   constructor(
     private groupSvc: GroupService,
+    private majorSvc: MajorService,
     private toastSvc: ToastService,
     private confirmSvc: ConfirmService
   ) {}
 
   ngOnInit(): void {
     this.load();
+    this.loadLookups();
+  }
+
+  loadLookups(): void {
+    this.majorSvc.getNames().subscribe({
+      next: (names) => (this.majorNames = names),
+      error: () => (this.majorNames = []),
+    });
   }
 
   load(): void {
@@ -146,6 +159,7 @@ export class GroupsComponent implements OnInit {
     this.showForm = false;
     this.toastSvc.success(msg);
     this.load();
+    this.loadLookups();
   }
 
   private onSaveError(): void {

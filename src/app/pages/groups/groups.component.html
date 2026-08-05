@@ -24,7 +24,10 @@
       </div>
       <div class="field">
         <label for="major">Major</label>
-        <input id="major" name="major" type="text" [(ngModel)]="draft.major" placeholder="e.g. MIS" />
+        <select id="major" name="major" [(ngModel)]="draft.major">
+          <option value="" disabled>Select a major</option>
+          <option *ngFor="let m of majorNames" [value]="m">{{ m }}</option>
+        </select>
       </div>
       <div class="field">
         <label for="totalStudents">Total students</label>
@@ -32,7 +35,9 @@
       </div>
       <div class="field">
         <label for="currentSemester">Current semester</label>
-        <input id="currentSemester" name="currentSemester" type="number" min="1" [(ngModel)]="draft.currentSemester" />
+        <select id="currentSemester" name="currentSemester" [(ngModel)]="draft.currentSemester">
+          <option *ngFor="let n of semesterOptions" [value]="n">Semester {{ n }}</option>
+        </select>
       </div>
       <div class="field">
         <label for="academicYear">Academic year</label>
