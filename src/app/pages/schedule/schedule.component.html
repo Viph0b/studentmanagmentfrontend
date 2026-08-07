@@ -20,15 +20,24 @@
     <div class="form-grid">
       <div class="field">
         <label for="groupName">Group</label>
-        <input id="groupName" name="groupName" type="text" [(ngModel)]="draft.groupName" placeholder="e.g. C01" required />
+        <select id="groupName" name="groupName" [(ngModel)]="draft.groupName">
+          <option value="" disabled>Select a group</option>
+          <option *ngFor="let g of groupNames" [value]="g">{{ g }}</option>
+        </select>
       </div>
       <div class="field">
         <label for="major">Major</label>
-        <input id="major" name="major" type="text" [(ngModel)]="draft.major" placeholder="e.g. MIS" />
+        <select id="major" name="major" [(ngModel)]="draft.major">
+          <option value="" disabled>Select a major</option>
+          <option *ngFor="let m of majorNames" [value]="m">{{ m }}</option>
+        </select>
       </div>
       <div class="field span-2">
         <label for="subject">Subject</label>
-        <input id="subject" name="subject" type="text" [(ngModel)]="draft.subject" placeholder="e.g. networking" required />
+        <select id="subject" name="subject" [(ngModel)]="draft.subject">
+          <option value="" disabled>Select a subject</option>
+          <option *ngFor="let subj of subjectOptions" [value]="subj">{{ subj }}</option>
+        </select>
       </div>
       <div class="field">
         <label for="teacherId">Teacher ID</label>

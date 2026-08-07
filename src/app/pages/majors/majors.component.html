@@ -13,9 +13,6 @@
 
 <div class="card form-panel" *ngIf="showForm">
   <h2>{{ editingId === null ? "Add a major" : "Edit major #" + editingId }}</h2>
-  <span class="form-sub"
-    >Separate multiple subjects or groups with commas.</span
-  >
 
   <div class="banner banner-error" *ngIf="formError">{{ formError }}</div>
 
@@ -31,7 +28,7 @@
           required
         />
       </div>
-      <div class="field">
+      <div class="field span-2">
         <label for="pricePerSemester">Price per semester ($)</label>
         <input
           id="pricePerSemester"
@@ -41,24 +38,67 @@
           [(ngModel)]="draft.pricePerSemester"
         />
       </div>
-      <div class="field">
-        <label for="groupText">Groups</label>
-        <input
-          id="groupText"
-          name="groupText"
-          type="text"
-          [(ngModel)]="draft.groupText"
-          placeholder="e.g. C01, C02"
-        />
+      <div class="field span-2">
+        <label>Groups</label>
+        <div class="check-list">
+          <label
+            class="check-item"
+            *ngFor="let group of visibleGroups"
+            [class.checked]="isGroupChecked(group)"
+          >
+            <input
+              type="checkbox"
+              [checked]="isGroupChecked(group)"
+              (change)="toggleGroup(group)"
+            />
+            <span>{{ group }}</span>
+          </label>
+        </div>
+        <button
+          type="button"
+          class="btn btn-ghost btn-sm show-more-btn"
+          *ngIf="groupOptions.length > previewLimit"
+          (click)="toggleShowGroups()"
+        >
+          {{
+            showAllGroups
+              ? "Show less"
+              : "Show more (" +
+                  (groupOptions.length - previewLimit) +
+                  " more)"
+          }}
+        </button>
       </div>
       <div class="field span-2">
-        <label for="subjectsText">Subjects</label>
-        <textarea
-          id="subjectsText"
-          name="subjectsText"
-          [(ngModel)]="draft.subjectsText"
-          placeholder="e.g. C++, C#, Networking"
-        ></textarea>
+        <label>Subjects</label>
+        <div class="check-list">
+          <label
+            class="check-item"
+            *ngFor="let subject of visibleSubjects"
+            [class.checked]="isSubjectChecked(subject)"
+          >
+            <input
+              type="checkbox"
+              [checked]="isSubjectChecked(subject)"
+              (change)="toggleSubject(subject)"
+            />
+            <span>{{ subject }}</span>
+          </label>
+        </div>
+        <button
+          type="button"
+          class="btn btn-ghost btn-sm show-more-btn"
+          *ngIf="subjectOptions.length > previewLimit"
+          (click)="toggleShowSubjects()"
+        >
+          {{
+            showAllSubjects
+              ? "Show less"
+              : "Show more (" +
+                  (subjectOptions.length - previewLimit) +
+                  " more)"
+          }}
+        </button>
       </div>
     </div>
 

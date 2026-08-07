@@ -50,9 +50,31 @@
         <label for="salary">Monthly salary ($)</label>
         <input id="salary" name="salary" type="number" min="0" [(ngModel)]="draft.salary" />
       </div>
-      <div class="field span-2">
-        <label for="subjectsText">Subjects taught</label>
-        <input id="subjectsText" name="subjectsText" type="text" [(ngModel)]="draft.subjectsText" placeholder="e.g. Database, MongoDB" />
+      <div class="field span-2" [ngClass]="{ 'has-error': subjectError }">
+        <label>Subjects taught</label>
+        <div class="check-list">
+          <label
+            class="check-item"
+            *ngFor="let subject of visibleSubjects"
+            [class.checked]="isSubjectChecked(subject)"
+          >
+            <input
+              type="checkbox"
+              [checked]="isSubjectChecked(subject)"
+              (change)="toggleSubject(subject)"
+            />
+            <span>{{ subject }}</span>
+          </label>
+        </div>
+        <button
+          type="button"
+          class="btn btn-ghost btn-sm show-more-btn"
+          *ngIf="subjectOptions.length > subjectsPreviewLimit"
+          (click)="toggleShowSubjects()"
+        >
+          {{ showAllSubjects ? 'Show less' : 'Show more (' + (subjectOptions.length - subjectsPreviewLimit) + ' more)' }}
+        </button>
+        <span class="field-error" *ngIf="subjectError">{{ subjectError }}</span>
       </div>
     </div>
 

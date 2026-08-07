@@ -3,6 +3,8 @@ import { Component, OnInit } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 
 import { ClassScheduleService } from '../../services/class-schedule.service';
+import { MajorService } from '../../services/major.service';
+import { GroupService } from '../../services/group.service';
 import { ToastService } from '../../services/toast.service';
 import { ConfirmService } from '../../services/confirm.service';
 import { ClassSchedule } from '../../models/class-schedule.model';
@@ -52,6 +54,10 @@ export class ScheduleComponent implements OnInit {
   error = '';
   search = '';
 
+  majorNames: string[] = [];
+  groupNames: string[] = [];
+  subjectOptions: string[] = [];
+
   showForm = false;
   editingId: number | null = null;
   draft: ScheduleDraft = { ...BLANK };
@@ -60,12 +66,30 @@ export class ScheduleComponent implements OnInit {
 
   constructor(
     private scheduleSvc: ClassScheduleService,
+    private majorSvc: MajorService,
+    private groupSvc: GroupService,
     private toastSvc: ToastService,
     private confirmSvc: ConfirmService
   ) {}
 
   ngOnInit(): void {
     this.load();
+    this.loadLookups();
+  }
+
+  loadLookups(): void {
+    this.majorSvc.getNames().subscribe({
+      next: (names) => (this.majorNames = names),
+      error: () => (this.majorNames = []),
+    });
+    this.groupSvc.getNames().subscribe({
+      next: (names) => (this.groupNames = names),
+      error: () => (this.groupNames = []),
+    });
+    this.majorSvc.getSubjects().subscribe({
+      next: (subjects) => (this.subjectOptions = subjects),
+      error: () => (this.subjectOptions = []),
+    });
   }
 
   load(): void {
@@ -170,6 +194,7 @@ export class ScheduleComponent implements OnInit {
     this.showForm = false;
     this.toastSvc.success(msg);
     this.load();
+    this.loadLookups();
   }
 
   private onSaveError(): void {

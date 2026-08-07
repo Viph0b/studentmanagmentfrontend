@@ -781,6 +781,47 @@ table.data-table tbody tr:hover .row-actions {
   color: var(--neu-destructive);
 }
 
+.check-list {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+  gap: 10px;
+}
+
+.show-more-btn {
+  align-self: flex-start;
+}
+
+.check-item {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 12px;
+  border-radius: var(--neu-radius);
+  font-size: 13.5px;
+  font-weight: 500;
+  color: var(--neu-text);
+  background: var(--neu-inset-bg);
+  box-shadow: inset -3px -3px 7px var(--neu-shadow-light), inset 3px 3px 7px var(--neu-shadow-dark);
+  cursor: pointer;
+  transition: box-shadow 0.2s var(--ease), color 0.2s var(--ease), background 0.2s var(--ease);
+  user-select: none;
+}
+
+.check-item input[type="checkbox"] {
+  width: 16px;
+  height: 16px;
+  margin: 0;
+  box-shadow: none;
+  cursor: pointer;
+  accent-color: var(--neu-accent);
+}
+
+.check-item.checked {
+  color: var(--neu-accent);
+  background: var(--neu-bg);
+  box-shadow: -3px -3px 7px var(--neu-shadow-light), 3px 3px 7px var(--neu-shadow-dark);
+}
+
 input, select, textarea {
   font-family: var(--font-sans);
   font-size: 13.5px;
