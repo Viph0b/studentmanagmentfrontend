@@ -4,6 +4,7 @@ import { FormsModule } from "@angular/forms";
 
 import { MajorService } from "../../services/major.service";
 import { GroupService } from "../../services/group.service";
+import { SubjectService } from "../../services/subject.service";
 import { ToastService } from "../../services/toast.service";
 import { ConfirmService } from "../../services/confirm.service";
 import { Major } from "../../models/major.model";
@@ -61,6 +62,7 @@ export class MajorsComponent implements OnInit {
   constructor(
     private majorSvc: MajorService,
     private groupSvc: GroupService,
+    private subjectSvc: SubjectService,
     private toastSvc: ToastService,
     private confirmSvc: ConfirmService,
   ) {}
@@ -71,7 +73,7 @@ export class MajorsComponent implements OnInit {
   }
 
   loadLookups(): void {
-    this.majorSvc.getSubjects().subscribe({
+    this.subjectSvc.getNames().subscribe({
       next: (subjects) => (this.subjectOptions = subjects),
       error: () => (this.subjectOptions = []),
     });

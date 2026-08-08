@@ -3,9 +3,11 @@ import { Component, OnInit } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 
 import { FeePaymentService } from '../../services/fee-payment.service';
+import { StudentService } from '../../services/student.service';
 import { ToastService } from '../../services/toast.service';
 import { ConfirmService } from '../../services/confirm.service';
 import { StudentFeePayment } from '../../models/fee-payment.model';
+import { Student } from '../../models/student.model';
 
 type PaymentDraft = {
   studentId: number;
@@ -33,6 +35,7 @@ const BLANK: PaymentDraft = {
 })
 export class PaymentsComponent implements OnInit {
   payments: StudentFeePayment[] = [];
+  students: Student[] = [];
   loading = true;
   error = '';
   search = '';
@@ -45,12 +48,21 @@ export class PaymentsComponent implements OnInit {
 
   constructor(
     private paymentSvc: FeePaymentService,
+    private studentSvc: StudentService,
     private toastSvc: ToastService,
     private confirmSvc: ConfirmService
   ) {}
 
   ngOnInit(): void {
     this.load();
+    this.studentSvc.getAll().subscribe({
+      next: (students) => (this.students = students),
+      error: () => (this.students = []),
+    });
+  }
+
+  studentName(id: number): string {
+    return this.students.find((s) => s.studentId === id)?.studentName ?? String(id);
   }
 
   load(): void {
@@ -73,6 +85,7 @@ export class PaymentsComponent implements OnInit {
     if (!q) return this.payments;
     return this.payments.filter(
       (p) =>
+        this.studentName(p.studentId).toLowerCase().includes(q) ||
         String(p.studentId).includes(q) ||
         p.paymentMethod?.toLowerCase().includes(q) ||
         p.status?.toLowerCase().includes(q)
@@ -111,7 +124,7 @@ export class PaymentsComponent implements OnInit {
 
   save(): void {
     if (!this.draft.studentId) {
-      this.formError = 'Student ID is required.';
+      this.formError = 'Please select a student.';
       return;
     }
     this.saving = true;
@@ -158,7 +171,7 @@ export class PaymentsComponent implements OnInit {
   remove(p: StudentFeePayment): void {
     this.confirmSvc.confirm({
       title: 'Remove payment',
-      message: `Remove payment #${p.paymentId} for student ${p.studentId}? This cannot be undone.`,
+      message: `Remove payment #${p.paymentId} for student ${this.studentName(p.studentId)}? This cannot be undone.`,
       confirmLabel: 'Remove',
       danger: true,
     }).subscribe((confirmed) => {

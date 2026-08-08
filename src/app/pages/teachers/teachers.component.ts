@@ -3,7 +3,7 @@ import { Component, OnInit } from "@angular/core";
 import { FormsModule } from "@angular/forms";
 
 import { TeacherService } from "../../services/teacher.service";
-import { MajorService } from "../../services/major.service";
+import { SubjectService } from "../../services/subject.service";
 import { ToastService } from "../../services/toast.service";
 import { ConfirmService } from "../../services/confirm.service";
 import { Teacher } from "../../models/teacher.model";
@@ -58,7 +58,7 @@ export class TeachersComponent implements OnInit {
 
   constructor(
     private teacherSvc: TeacherService,
-    private majorSvc: MajorService,
+    private subjectSvc: SubjectService,
     private toastSvc: ToastService,
     private confirmSvc: ConfirmService,
   ) {}
@@ -69,7 +69,7 @@ export class TeachersComponent implements OnInit {
   }
 
   loadSubjects(): void {
-    this.majorSvc.getSubjects().subscribe({
+    this.subjectSvc.getNames().subscribe({
       next: (subjects) => (this.subjectOptions = subjects),
       error: () => (this.subjectOptions = []),
     });

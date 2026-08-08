@@ -1,0 +1,95 @@
+<div class="page-header">
+  <div>
+    <span class="eyebrow">Register · 08</span>
+    <h1>Subjects</h1>
+  </div>
+  <div class="tally">
+    <span>courses</span>
+    <b>{{ subjects.length }}</b>
+  </div>
+</div>
+
+<div class="banner banner-error" *ngIf="error">{{ error }}</div>
+
+<div class="card form-panel" *ngIf="showForm">
+  <h2>{{ editingId === null ? "Add a subject" : "Edit subject #" + editingId }}</h2>
+
+  <div class="banner banner-error" *ngIf="formError">{{ formError }}</div>
+
+  <form (ngSubmit)="save()">
+    <div class="form-grid">
+      <div class="field span-2">
+        <label for="subjectName">Subject name</label>
+        <input
+          id="subjectName"
+          name="subjectName"
+          type="text"
+          [(ngModel)]="draft.subjectName"
+          placeholder="e.g. Data Structure"
+          required
+        />
+      </div>
+    </div>
+
+    <div class="form-actions">
+      <button type="submit" class="btn btn-primary" [disabled]="saving">
+        {{ saving ? "Saving…" : editingId === null ? "Add subject" : "Save changes" }}
+      </button>
+      <button type="button" class="btn btn-ghost" (click)="cancelForm()">
+        Cancel
+      </button>
+    </div>
+  </form>
+</div>
+
+<div class="toolbar" *ngIf="!showForm">
+  <div class="search-wrap">
+    <input
+      type="text"
+      placeholder="Search by subject name…"
+      [(ngModel)]="search"
+      name="search"
+    />
+    <button class="search-clear" *ngIf="search" (click)="search = ''">
+      <svg class="icon" viewBox="0 0 256 256" fill="currentColor">
+        <path
+          d="M205.66,194.34a8,8,0,0,1-11.32,11.32L128,139.31,61.66,205.66a8,8,0,0,1-11.32-11.32L116.69,128,50.34,61.66A8,8,0,0,1,61.66,50.34L128,116.69l66.34-66.35a8,8,0,0,1,11.32,11.32L139.31,128Z"
+        />
+      </svg>
+    </button>
+  </div>
+  <button class="btn btn-primary" (click)="openCreate()">+ Add subject</button>
+</div>
+
+<div class="loading-note" *ngIf="loading">Loading subjects…</div>
+
+<div class="card table-wrap" *ngIf="!loading && !showForm">
+  <table class="data-table">
+    <thead>
+      <tr>
+        <th>Subject ID</th>
+        <th>Subject</th>
+        <th></th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr *ngFor="let s of filtered">
+        <td class="mono">{{ s.subjectId }}</td>
+        <td>{{ s.subjectName }}</td>
+        <td>
+          <div class="row-actions">
+            <button class="btn btn-ghost btn-sm" (click)="openEdit(s)">
+              Edit
+            </button>
+            <button class="btn btn-danger btn-sm" (click)="remove(s)">
+              Delete
+            </button>
+          </div>
+        </td>
+      </tr>
+      <tr *ngIf="filtered.length === 0">
+        <td colspan="3" class="empty-state">No subjects match this search.</td>
+      </tr>
+    </tbody>
+  </table>
+</div>
