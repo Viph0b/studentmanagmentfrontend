@@ -5,9 +5,11 @@ import { FormsModule } from '@angular/forms';
 import { ClassScheduleService } from '../../services/class-schedule.service';
 import { MajorService } from '../../services/major.service';
 import { GroupService } from '../../services/group.service';
+import { TeacherService } from '../../services/teacher.service';
 import { ToastService } from '../../services/toast.service';
 import { ConfirmService } from '../../services/confirm.service';
 import { ClassSchedule } from '../../models/class-schedule.model';
+import { Teacher } from '../../models/teacher.model';
 
 type ScheduleDraft = {
   groupName: string;
@@ -57,6 +59,7 @@ export class ScheduleComponent implements OnInit {
   majorNames: string[] = [];
   groupNames: string[] = [];
   subjectOptions: string[] = [];
+  teachers: Teacher[] = [];
 
   showForm = false;
   editingId: number | null = null;
@@ -68,6 +71,7 @@ export class ScheduleComponent implements OnInit {
     private scheduleSvc: ClassScheduleService,
     private majorSvc: MajorService,
     private groupSvc: GroupService,
+    private teacherSvc: TeacherService,
     private toastSvc: ToastService,
     private confirmSvc: ConfirmService
   ) {}
@@ -89,6 +93,10 @@ export class ScheduleComponent implements OnInit {
     this.majorSvc.getSubjects().subscribe({
       next: (subjects) => (this.subjectOptions = subjects),
       error: () => (this.subjectOptions = []),
+    });
+    this.teacherSvc.getAll().subscribe({
+      next: (teachers) => (this.teachers = teachers),
+      error: () => (this.teachers = []),
     });
   }
 
@@ -159,11 +167,14 @@ export class ScheduleComponent implements OnInit {
     this.saving = true;
     this.formError = '';
 
+    const selectedTeacher = this.teachers.find(
+      (t) => t.teacherId === this.draft.teacherId
+    );
     const base = {
       groupName: this.draft.groupName,
       major: this.draft.major,
       teacherId: Number(this.draft.teacherId) || 0,
-      teacherName: this.draft.teacherName,
+      teacherName: selectedTeacher?.teacherName ?? this.draft.teacherName,
       subject: this.draft.subject,
       semester: Number(this.draft.semester) || 1,
       academicYear: this.draft.academicYear,

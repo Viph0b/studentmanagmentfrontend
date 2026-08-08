@@ -12,7 +12,11 @@
 <div class="banner banner-error" *ngIf="error">{{ error }}</div>
 
 <div class="card form-panel" *ngIf="showForm">
-  <h2>{{ editingId === null ? 'Schedule a class' : 'Edit schedule #' + editingId }}</h2>
+  <h2>
+    {{
+      editingId === null ? "Schedule a class" : "Edit schedule #" + editingId
+    }}
+  </h2>
 
   <div class="banner banner-error" *ngIf="formError">{{ formError }}</div>
 
@@ -36,16 +40,19 @@
         <label for="subject">Subject</label>
         <select id="subject" name="subject" [(ngModel)]="draft.subject">
           <option value="" disabled>Select a subject</option>
-          <option *ngFor="let subj of subjectOptions" [value]="subj">{{ subj }}</option>
+          <option *ngFor="let subj of subjectOptions" [value]="subj">
+            {{ subj }}
+          </option>
         </select>
       </div>
-      <div class="field">
-        <label for="teacherId">Teacher ID</label>
-        <input id="teacherId" name="teacherId" type="number" min="0" [(ngModel)]="draft.teacherId" />
-      </div>
-      <div class="field">
-        <label for="teacherName">Teacher name</label>
-        <input id="teacherName" name="teacherName" type="text" [(ngModel)]="draft.teacherName" />
+      <div class="field span-2">
+        <label for="teacherId">Teacher</label>
+        <select id="teacherId" name="teacherId" [(ngModel)]="draft.teacherId">
+          <option [ngValue]="0" disabled>Select a teacher</option>
+          <option *ngFor="let t of teachers" [ngValue]="t.teacherId">
+            {{ t.teacherName }} · ID {{ t.teacherId }}
+          </option>
+        </select>
       </div>
       <div class="field">
         <label for="dayOfWeek">Day of week</label>
@@ -63,31 +70,66 @@
       </div>
       <div class="field">
         <label for="startTime">Start time</label>
-        <input id="startTime" name="startTime" type="time" [(ngModel)]="draft.startTime" />
+        <input
+          id="startTime"
+          name="startTime"
+          type="time"
+          [(ngModel)]="draft.startTime"
+        />
       </div>
       <div class="field">
         <label for="endTime">End time</label>
-        <input id="endTime" name="endTime" type="time" [(ngModel)]="draft.endTime" />
+        <input
+          id="endTime"
+          name="endTime"
+          type="time"
+          [(ngModel)]="draft.endTime"
+        />
       </div>
       <div class="field">
         <label for="room">Room</label>
-        <input id="room" name="room" type="text" [(ngModel)]="draft.room" placeholder="e.g. Room 201" />
+        <input
+          id="room"
+          name="room"
+          type="text"
+          [(ngModel)]="draft.room"
+          placeholder="e.g. Room 201"
+        />
       </div>
       <div class="field">
         <label for="semester">Semester</label>
-        <input id="semester" name="semester" type="number" min="1" [(ngModel)]="draft.semester" />
+        <input
+          id="semester"
+          name="semester"
+          type="number"
+          min="1"
+          [(ngModel)]="draft.semester"
+        />
       </div>
       <div class="field">
         <label for="academicYear">Academic year</label>
-        <input id="academicYear" name="academicYear" type="text" [(ngModel)]="draft.academicYear" />
+        <input
+          id="academicYear"
+          name="academicYear"
+          type="text"
+          [(ngModel)]="draft.academicYear"
+        />
       </div>
     </div>
 
     <div class="form-actions">
       <button type="submit" class="btn btn-primary" [disabled]="saving">
-        {{ saving ? 'Saving…' : (editingId === null ? 'Add to schedule' : 'Save changes') }}
+        {{
+          saving
+            ? "Saving…"
+            : editingId === null
+              ? "Add to schedule"
+              : "Save changes"
+        }}
       </button>
-      <button type="button" class="btn btn-ghost" (click)="cancelForm()">Cancel</button>
+      <button type="button" class="btn btn-ghost" (click)="cancelForm()">
+        Cancel
+      </button>
     </div>
   </form>
 </div>
@@ -102,7 +144,9 @@
     />
     <button class="search-clear" *ngIf="search" (click)="search = ''">
       <svg class="icon" viewBox="0 0 256 256" fill="currentColor">
-        <path d="M205.66,194.34a8,8,0,0,1-11.32,11.32L128,139.31,61.66,205.66a8,8,0,0,1-11.32-11.32L116.69,128,50.34,61.66A8,8,0,0,1,61.66,50.34L128,116.69l66.34-66.35a8,8,0,0,1,11.32,11.32L139.31,128Z"/>
+        <path
+          d="M205.66,194.34a8,8,0,0,1-11.32,11.32L128,139.31,61.66,205.66a8,8,0,0,1-11.32-11.32L116.69,128,50.34,61.66A8,8,0,0,1,61.66,50.34L128,116.69l66.34-66.35a8,8,0,0,1,11.32,11.32L139.31,128Z"
+        />
       </svg>
     </button>
   </div>
@@ -115,8 +159,9 @@
   <table class="data-table">
     <thead>
       <tr>
-        <th>ID</th>
+        <th>Schedule ID</th>
         <th>Group</th>
+        <th>Major</th>
         <th>Subject</th>
         <th>Teacher</th>
         <th>Day</th>
@@ -129,7 +174,10 @@
     <tbody>
       <tr *ngFor="let s of filtered">
         <td class="mono">{{ s.scheduleId }}</td>
-        <td><span class="chip">{{ s.groupName }}</span></td>
+        <td>
+          <span class="chip">{{ s.groupName }}</span>
+        </td>
+        <td>{{ s.major }}</td>
         <td>{{ s.subject }}</td>
         <td>{{ s.teacherName }}</td>
         <td>{{ s.dayOfWeek }}</td>
@@ -138,13 +186,17 @@
         <td>{{ s.shift }}</td>
         <td>
           <div class="row-actions">
-            <button class="btn btn-ghost btn-sm" (click)="openEdit(s)">Edit</button>
-            <button class="btn btn-danger btn-sm" (click)="remove(s)">Delete</button>
+            <button class="btn btn-ghost btn-sm" (click)="openEdit(s)">
+              Edit
+            </button>
+            <button class="btn btn-danger btn-sm" (click)="remove(s)">
+              Delete
+            </button>
           </div>
         </td>
       </tr>
       <tr *ngIf="filtered.length === 0">
-        <td colspan="9" class="empty-state">No sessions match this search.</td>
+        <td colspan="10" class="empty-state">No sessions match this search.</td>
       </tr>
     </tbody>
   </table>

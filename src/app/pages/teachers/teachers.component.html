@@ -12,7 +12,9 @@
 <div class="banner banner-error" *ngIf="error">{{ error }}</div>
 
 <div class="card form-panel" *ngIf="showForm">
-  <h2>{{ editingId === null ? 'Add a teacher' : 'Edit teacher #' + editingId }}</h2>
+  <h2>
+    {{ editingId === null ? "Add a teacher" : "Edit teacher #" + editingId }}
+  </h2>
   <span class="form-sub">Separate multiple subjects with commas.</span>
 
   <div class="banner banner-error" *ngIf="formError">{{ formError }}</div>
@@ -21,19 +23,29 @@
     <div class="form-grid">
       <div class="field span-2">
         <label for="teacherName">Full name</label>
-        <input id="teacherName" name="teacherName" type="text" [(ngModel)]="draft.teacherName" required />
+        <input
+          id="teacherName"
+          name="teacherName"
+          type="text"
+          [(ngModel)]="draft.teacherName"
+          required
+        />
       </div>
       <div class="field">
         <label for="gender">Gender</label>
         <select id="gender" name="gender" [(ngModel)]="draft.gender">
           <option value="Male">Male</option>
           <option value="Female">Female</option>
-          <option value="Other">Other</option>
         </select>
       </div>
       <div class="field">
         <label for="dateOfBirth">Date of birth</label>
-        <input id="dateOfBirth" name="dateOfBirth" type="date" [(ngModel)]="draft.dateOfBirth" />
+        <input
+          id="dateOfBirth"
+          name="dateOfBirth"
+          type="date"
+          [(ngModel)]="draft.dateOfBirth"
+        />
       </div>
       <div class="field" [ngClass]="{ 'has-error': phoneError }">
         <label for="phoneNumber">Phone number</label>
@@ -48,7 +60,13 @@
       </div>
       <div class="field">
         <label for="salary">Monthly salary ($)</label>
-        <input id="salary" name="salary" type="number" min="0" [(ngModel)]="draft.salary" />
+        <input
+          id="salary"
+          name="salary"
+          type="number"
+          min="0"
+          [(ngModel)]="draft.salary"
+        />
       </div>
       <div class="field span-2" [ngClass]="{ 'has-error': subjectError }">
         <label>Subjects taught</label>
@@ -72,7 +90,13 @@
           *ngIf="subjectOptions.length > subjectsPreviewLimit"
           (click)="toggleShowSubjects()"
         >
-          {{ showAllSubjects ? 'Show less' : 'Show more (' + (subjectOptions.length - subjectsPreviewLimit) + ' more)' }}
+          {{
+            showAllSubjects
+              ? "Show less"
+              : "Show more (" +
+                (subjectOptions.length - subjectsPreviewLimit) +
+                " more)"
+          }}
         </button>
         <span class="field-error" *ngIf="subjectError">{{ subjectError }}</span>
       </div>
@@ -80,9 +104,17 @@
 
     <div class="form-actions">
       <button type="submit" class="btn btn-primary" [disabled]="saving">
-        {{ saving ? 'Saving…' : (editingId === null ? 'Add teacher' : 'Save changes') }}
+        {{
+          saving
+            ? "Saving…"
+            : editingId === null
+              ? "Add teacher"
+              : "Save changes"
+        }}
       </button>
-      <button type="button" class="btn btn-ghost" (click)="cancelForm()">Cancel</button>
+      <button type="button" class="btn btn-ghost" (click)="cancelForm()">
+        Cancel
+      </button>
     </div>
   </form>
 </div>
@@ -97,7 +129,9 @@
     />
     <button class="search-clear" *ngIf="search" (click)="search = ''">
       <svg class="icon" viewBox="0 0 256 256" fill="currentColor">
-        <path d="M205.66,194.34a8,8,0,0,1-11.32,11.32L128,139.31,61.66,205.66a8,8,0,0,1-11.32-11.32L116.69,128,50.34,61.66A8,8,0,0,1,61.66,50.34L128,116.69l66.34-66.35a8,8,0,0,1,11.32,11.32L139.31,128Z"/>
+        <path
+          d="M205.66,194.34a8,8,0,0,1-11.32,11.32L128,139.31,61.66,205.66a8,8,0,0,1-11.32-11.32L116.69,128,50.34,61.66A8,8,0,0,1,61.66,50.34L128,116.69l66.34-66.35a8,8,0,0,1,11.32,11.32L139.31,128Z"
+        />
       </svg>
     </button>
   </div>
@@ -110,7 +144,7 @@
   <table class="data-table">
     <thead>
       <tr>
-        <th>ID</th>
+        <th>Teacher ID</th>
         <th>Name</th>
         <th>Gender</th>
         <th>Subjects</th>
@@ -127,12 +161,16 @@
         <td>
           <span class="chip" *ngFor="let subj of t.subjects">{{ subj }}</span>
         </td>
-        <td class="mono">{{ t.phoneNumber || '—' }}</td>
+        <td class="mono">{{ t.phoneNumber || "—" }}</td>
         <td class="mono">${{ t.salary }}</td>
         <td>
           <div class="row-actions">
-            <button class="btn btn-ghost btn-sm" (click)="openEdit(t)">Edit</button>
-            <button class="btn btn-danger btn-sm" (click)="remove(t)">Delete</button>
+            <button class="btn btn-ghost btn-sm" (click)="openEdit(t)">
+              Edit
+            </button>
+            <button class="btn btn-danger btn-sm" (click)="remove(t)">
+              Delete
+            </button>
           </div>
         </td>
       </tr>

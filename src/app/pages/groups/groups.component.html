@@ -12,7 +12,7 @@
 <div class="banner banner-error" *ngIf="error">{{ error }}</div>
 
 <div class="card form-panel" *ngIf="showForm">
-  <h2>{{ editingId === null ? 'Add a group' : 'Edit group #' + editingId }}</h2>
+  <h2>{{ editingId === null ? "Add a group" : "Edit group #" + editingId }}</h2>
 
   <div class="banner banner-error" *ngIf="formError">{{ formError }}</div>
 
@@ -20,7 +20,14 @@
     <div class="form-grid">
       <div class="field">
         <label for="groupName">Group name</label>
-        <input id="groupName" name="groupName" type="text" [(ngModel)]="draft.groupName" placeholder="e.g. C11" required />
+        <input
+          id="groupName"
+          name="groupName"
+          type="text"
+          [(ngModel)]="draft.groupName"
+          placeholder="e.g. C11"
+          required
+        />
       </div>
       <div class="field">
         <label for="major">Major</label>
@@ -31,17 +38,35 @@
       </div>
       <div class="field">
         <label for="totalStudents">Total students</label>
-        <input id="totalStudents" name="totalStudents" type="number" min="0" [(ngModel)]="draft.totalStudents" />
+        <input
+          id="totalStudents"
+          name="totalStudents"
+          type="number"
+          min="0"
+          [(ngModel)]="draft.totalStudents"
+        />
       </div>
       <div class="field">
         <label for="currentSemester">Current semester</label>
-        <select id="currentSemester" name="currentSemester" [(ngModel)]="draft.currentSemester">
-          <option *ngFor="let n of semesterOptions" [value]="n">Semester {{ n }}</option>
+        <select
+          id="currentSemester"
+          name="currentSemester"
+          [(ngModel)]="draft.currentSemester"
+        >
+          <option *ngFor="let n of semesterOptions" [value]="n">
+            Semester {{ n }}
+          </option>
         </select>
       </div>
       <div class="field">
         <label for="academicYear">Academic year</label>
-        <input id="academicYear" name="academicYear" type="text" [(ngModel)]="draft.academicYear" placeholder="2025-2026" />
+        <input
+          id="academicYear"
+          name="academicYear"
+          type="text"
+          [(ngModel)]="draft.academicYear"
+          placeholder="2025-2026"
+        />
       </div>
       <div class="field">
         <label for="shift">Shift</label>
@@ -62,9 +87,13 @@
 
     <div class="form-actions">
       <button type="submit" class="btn btn-primary" [disabled]="saving">
-        {{ saving ? 'Saving…' : (editingId === null ? 'Add group' : 'Save changes') }}
+        {{
+          saving ? "Saving…" : editingId === null ? "Add group" : "Save changes"
+        }}
       </button>
-      <button type="button" class="btn btn-ghost" (click)="cancelForm()">Cancel</button>
+      <button type="button" class="btn btn-ghost" (click)="cancelForm()">
+        Cancel
+      </button>
     </div>
   </form>
 </div>
@@ -79,7 +108,9 @@
     />
     <button class="search-clear" *ngIf="search" (click)="search = ''">
       <svg class="icon" viewBox="0 0 256 256" fill="currentColor">
-        <path d="M205.66,194.34a8,8,0,0,1-11.32,11.32L128,139.31,61.66,205.66a8,8,0,0,1-11.32-11.32L116.69,128,50.34,61.66A8,8,0,0,1,61.66,50.34L128,116.69l66.34-66.35a8,8,0,0,1,11.32,11.32L139.31,128Z"/>
+        <path
+          d="M205.66,194.34a8,8,0,0,1-11.32,11.32L128,139.31,61.66,205.66a8,8,0,0,1-11.32-11.32L116.69,128,50.34,61.66A8,8,0,0,1,61.66,50.34L128,116.69l66.34-66.35a8,8,0,0,1,11.32,11.32L139.31,128Z"
+        />
       </svg>
     </button>
   </div>
@@ -92,7 +123,7 @@
   <table class="data-table">
     <thead>
       <tr>
-        <th>ID</th>
+        <th>Group ID</th>
         <th>Group</th>
         <th>Major</th>
         <th>Students</th>
@@ -106,19 +137,29 @@
     <tbody>
       <tr *ngFor="let g of filtered">
         <td class="mono">{{ g.groupId }}</td>
-        <td><strong>{{ g.groupName }}</strong></td>
+        <td>
+          <strong>{{ g.groupName }}</strong>
+        </td>
         <td>{{ g.major }}</td>
         <td class="mono">{{ g.totalStudents }}</td>
         <td class="mono">{{ g.currentSemester }}</td>
         <td class="mono">{{ g.academicYear }}</td>
         <td>{{ g.shift }}</td>
         <td>
-          <span class="badge" [ngClass]="g.status === 'Active' ? 'badge-success' : 'badge-danger'">{{ g.status }}</span>
+          <span
+            class="badge"
+            [ngClass]="g.status === 'Active' ? 'badge-success' : 'badge-danger'"
+            >{{ g.status }}</span
+          >
         </td>
         <td>
           <div class="row-actions">
-            <button class="btn btn-ghost btn-sm" (click)="openEdit(g)">Edit</button>
-            <button class="btn btn-danger btn-sm" (click)="remove(g)">Delete</button>
+            <button class="btn btn-ghost btn-sm" (click)="openEdit(g)">
+              Edit
+            </button>
+            <button class="btn btn-danger btn-sm" (click)="remove(g)">
+              Delete
+            </button>
           </div>
         </td>
       </tr>
