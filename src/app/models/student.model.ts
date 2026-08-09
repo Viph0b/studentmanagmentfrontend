@@ -1,23 +1,3 @@
-export interface Score {
-  subject: string;
-  score: number | null;
-}
-
-export interface Test {
-  scores: Score[];
-}
-
-export interface Exam {
-  semester: number;
-  midterm: Test;
-  final: Test;
-}
-
-export interface Attendance {
-  date: string;
-  status: string;
-}
-
 export interface Student {
   id?: string;
   studentId: number;
@@ -30,8 +10,6 @@ export interface Student {
   groupId: number;
   majorName?: string;
   groupName?: string;
-  attendances: Attendance[];
-  exams: Exam[];
 }
 
 export type StudentInput = Omit<Student, 'id' | 'studentId'>;

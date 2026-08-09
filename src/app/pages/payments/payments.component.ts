@@ -15,7 +15,6 @@ type PaymentDraft = {
   amountPaid: number;
   paymentDate: string;
   paymentMethod: string;
-  status: string;
 };
 
 const BLANK: PaymentDraft = {
@@ -24,7 +23,6 @@ const BLANK: PaymentDraft = {
   amountPaid: 0,
   paymentDate: new Date().toISOString().substring(0, 10),
   paymentMethod: "Cash",
-  status: "Paid",
 };
 
 @Component({
@@ -90,13 +88,8 @@ export class PaymentsComponent implements OnInit {
       (p) =>
         this.studentName(p.studentId).toLowerCase().includes(q) ||
         String(p.studentId).includes(q) ||
-        p.paymentMethod?.toLowerCase().includes(q) ||
-        p.status?.toLowerCase().includes(q),
+        p.paymentMethod?.toLowerCase().includes(q),
     );
-  }
-
-  isPaid(status: string): boolean {
-    return status?.trim().toLowerCase() === "paid";
   }
 
   openCreate(): void {
@@ -117,7 +110,6 @@ export class PaymentsComponent implements OnInit {
       amountPaid: p.amountPaid,
       paymentDate: p.paymentDate ? p.paymentDate.substring(0, 10) : "",
       paymentMethod: p.paymentMethod,
-      status: p.status,
     };
     this.formError = "";
     this.showForm = true;
@@ -144,7 +136,6 @@ export class PaymentsComponent implements OnInit {
         ? new Date(this.draft.paymentDate).toISOString()
         : new Date().toISOString(),
       paymentMethod: this.draft.paymentMethod,
-      status: this.draft.status,
     };
 
     if (this.editingId === null) {

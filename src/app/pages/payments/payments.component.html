@@ -69,13 +69,6 @@
           <option value="Wing">Wing</option>
         </select>
       </div>
-      <div class="field">
-        <label for="status">Status</label>
-        <select id="status" name="status" [(ngModel)]="draft.status">
-          <option value="Paid">Paid</option>
-          <option value="Not yet paid">Not yet paid</option>
-        </select>
-      </div>
     </div>
 
     <div class="form-actions">
@@ -99,7 +92,7 @@
   <div class="search-wrap">
     <input
       type="text"
-      placeholder="Search by student, method, or status…"
+      placeholder="Search by student or method…"
       [(ngModel)]="search"
       name="search"
     />
@@ -128,7 +121,6 @@
         <th>Amount</th>
         <th>Date</th>
         <th>Method</th>
-        <th>Status</th>
         <th></th>
       </tr>
     </thead>
@@ -141,13 +133,6 @@
         <td class="mono">{{ p.paymentDate | slice: 0 : 10 }}</td>
         <td>{{ p.paymentMethod }}</td>
         <td>
-          <span
-            class="badge"
-            [ngClass]="isPaid(p.status) ? 'badge-success' : 'badge-danger'"
-            >{{ p.status }}</span
-          >
-        </td>
-        <td>
           <div class="row-actions">
             <button class="btn btn-ghost btn-sm" (click)="openEdit(p)">
               Edit
@@ -159,7 +144,7 @@
         </td>
       </tr>
       <tr *ngIf="filtered.length === 0">
-        <td colspan="8" class="empty-state">No payments match this search.</td>
+        <td colspan="7" class="empty-state">No payments match this search.</td>
       </tr>
     </tbody>
   </table>

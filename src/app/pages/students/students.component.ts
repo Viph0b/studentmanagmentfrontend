@@ -9,6 +9,7 @@ import { ToastService } from "../../services/toast.service";
 import { ConfirmService } from "../../services/confirm.service";
 import { Student } from "../../models/student.model";
 import { LabelValue } from "../../models/label-value.model";
+import { Group } from "../../models/group.model";
 
 type StudentDraft = {
   studentName: string;
@@ -42,7 +43,7 @@ export class StudentsComponent implements OnInit {
   error = "";
 
   majorOptions: LabelValue[] = [];
-  groupOptions: LabelValue[] = [];
+  groups: Group[] = [];
 
   search = "";
 
@@ -89,10 +90,26 @@ export class StudentsComponent implements OnInit {
       error: () => (this.majorOptions = []),
     });
 
-    this.groupSvc.getOptions().subscribe({
-      next: (options) => (this.groupOptions = options),
-      error: () => (this.groupOptions = []),
+    this.groupSvc.getAll().subscribe({
+      next: (data) => (this.groups = data),
+      error: () => (this.groups = []),
     });
+  }
+
+  get visibleGroups(): LabelValue[] {
+    const majorId = Number(this.draft.majorId) || 0;
+    return this.groups
+      .filter((g) => !majorId || g.majorId === majorId)
+      .map((g) => ({ id: g.groupId, name: g.groupName }));
+  }
+
+  onGroupChange(): void {
+    const group = this.groups.find((g) => g.groupId === Number(this.draft.groupId));
+    if (group) this.draft.majorId = group.majorId;
+  }
+
+  onMajorChange(): void {
+    this.draft.groupId = 0;
   }
 
   get filtered(): Student[] {
@@ -175,8 +192,6 @@ export class StudentsComponent implements OnInit {
         email: this.draft.email,
         majorId: Number(this.draft.majorId) || 0,
         groupId: Number(this.draft.groupId) || 0,
-        attendances: [],
-        exams: [],
       };
       this.studentSvc.create(payload).subscribe({
         next: () => this.onSaved("Student added."),
@@ -196,8 +211,6 @@ export class StudentsComponent implements OnInit {
         email: this.draft.email,
         majorId: Number(this.draft.majorId) || 0,
         groupId: Number(this.draft.groupId) || 0,
-        attendances: existing?.attendances ?? [],
-        exams: existing?.exams ?? [],
       };
       this.studentSvc.update(this.editingId, payload).subscribe({
         next: () => this.onSaved("Student updated."),

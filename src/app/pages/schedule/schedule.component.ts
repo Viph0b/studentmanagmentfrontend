@@ -12,6 +12,8 @@ import { ConfirmService } from '../../services/confirm.service';
 import { ClassSchedule } from '../../models/class-schedule.model';
 import { LabelValue } from '../../models/label-value.model';
 import { Teacher } from '../../models/teacher.model';
+import { Major } from '../../models/major.model';
+import { Group } from '../../models/group.model';
 
 type ScheduleDraft = {
   groupId: number;
@@ -56,10 +58,11 @@ export class ScheduleComponent implements OnInit {
   error = '';
   search = '';
 
-  majorOptions: LabelValue[] = [];
-  groupOptions: LabelValue[] = [];
+  majors: Major[] = [];
+  groups: Group[] = [];
   subjectOptions: LabelValue[] = [];
   teachers: Teacher[] = [];
+  semesterOptions = [1, 2, 3, 4, 5, 6, 7, 8];
 
   showForm = false;
   editingId: number | null = null;
@@ -83,13 +86,13 @@ export class ScheduleComponent implements OnInit {
   }
 
   loadLookups(): void {
-    this.majorSvc.getOptions().subscribe({
-      next: (options) => (this.majorOptions = options),
-      error: () => (this.majorOptions = []),
+    this.majorSvc.getAll().subscribe({
+      next: (majors) => (this.majors = majors),
+      error: () => (this.majors = []),
     });
-    this.groupSvc.getOptions().subscribe({
-      next: (options) => (this.groupOptions = options),
-      error: () => (this.groupOptions = []),
+    this.groupSvc.getAll().subscribe({
+      next: (groups) => (this.groups = groups),
+      error: () => (this.groups = []),
     });
     this.subjectSvc.getOptions().subscribe({
       next: (options) => (this.subjectOptions = options),
@@ -99,6 +102,47 @@ export class ScheduleComponent implements OnInit {
       next: (teachers) => (this.teachers = teachers),
       error: () => (this.teachers = []),
     });
+  }
+
+  get visibleGroups(): LabelValue[] {
+    const majorId = Number(this.draft.majorId) || 0;
+    return this.groups
+      .filter((g) => !majorId || g.majorId === majorId)
+      .map((g) => ({ id: g.groupId, name: g.groupName }));
+  }
+
+  get availableSubjects(): LabelValue[] {
+    const teacher = this.teachers.find(
+      (t) => t.teacherId === Number(this.draft.teacherId)
+    );
+    const major = this.majors.find(
+      (m) => m.majorId === Number(this.draft.majorId)
+    );
+    const teacherIds = teacher?.subjectIds ?? [];
+    const majorIds = major?.subjectIds ?? [];
+    const result = this.subjectOptions.filter(
+      (s) => teacherIds.includes(s.id) && majorIds.includes(s.id)
+    );
+    const current = this.subjectOptions.find(
+      (s) => s.id === Number(this.draft.subjectId)
+    );
+    if (current && !result.some((s) => s.id === current.id)) result.push(current);
+    return result;
+  }
+
+  onGroupChange(): void {
+    const group = this.groups.find((g) => g.groupId === Number(this.draft.groupId));
+    if (group) this.draft.majorId = group.majorId;
+    this.draft.subjectId = 0;
+  }
+
+  onMajorChange(): void {
+    this.draft.groupId = 0;
+    this.draft.subjectId = 0;
+  }
+
+  onTeacherChange(): void {
+    this.draft.subjectId = 0;
   }
 
   load(): void {

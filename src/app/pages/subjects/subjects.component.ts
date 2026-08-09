@@ -130,7 +130,7 @@ export class SubjectsComponent implements OnInit {
   remove(s: Subject): void {
     this.confirmSvc.confirm({
       title: 'Remove subject',
-      message: `Remove subject "${s.subjectName}"? This cannot be undone.`,
+      message: `Remove subject "${s.subjectName}"? It will also be detached from all majors, teachers, and class schedules that use it. This cannot be undone.`,
       confirmLabel: 'Remove',
       danger: true,
     }).subscribe((confirmed) => {
@@ -140,8 +140,9 @@ export class SubjectsComponent implements OnInit {
           this.toastSvc.success('Subject removed.');
           this.load();
         },
-        error: () => {
-          this.toastSvc.error('Delete failed. Please try again.');
+        error: (err) => {
+          const detail = err?.error?.message;
+          this.toastSvc.error(detail ?? 'Delete failed. Please try again.');
         },
       });
     });

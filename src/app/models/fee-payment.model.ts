@@ -7,7 +7,6 @@ export interface StudentFeePayment {
   amountPaid: number;
   paymentDate: string; // ISO date string
   paymentMethod: string;
-  status: string;
 }
 
 export type StudentFeePaymentInput = Omit<
