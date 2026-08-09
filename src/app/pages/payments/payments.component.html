@@ -22,12 +22,23 @@
     <div class="form-grid">
       <div class="field span-2">
         <label for="studentId">Student</label>
-        <select id="studentId" name="studentId" [(ngModel)]="draft.studentId">
+        <select id="studentId" name="studentId" [(ngModel)]="draft.studentId" (ngModelChange)="onStudentChange()">
           <option [ngValue]="0" disabled>Select a student</option>
           <option *ngFor="let s of students" [ngValue]="s.studentId">
             {{ s.studentName }} · ID {{ s.studentId }}
           </option>
         </select>
+      </div>
+      <div class="field span-2">
+        <label for="major">Major</label>
+        <input
+          id="major"
+          name="major"
+          type="text"
+          [value]="selectedStudent?.majorName ?? ''"
+          readonly
+          placeholder="Select a student to see major"
+        />
       </div>
       <div class="field">
         <label for="semester">Semester</label>
@@ -117,6 +128,7 @@
       <tr>
         <th>Payment ID</th>
         <th>Student</th>
+        <th>Major</th>
         <th>Semester</th>
         <th>Amount</th>
         <th>Date</th>
@@ -128,6 +140,7 @@
       <tr *ngFor="let p of filtered">
         <td class="mono">{{ p.paymentId }}</td>
         <td>{{ p.studentName || studentName(p.studentId) }}</td>
+        <td>{{ studentMajorName(p.studentId) }}</td>
         <td class="mono">{{ p.semester }}</td>
         <td class="mono">${{ p.amountPaid }}</td>
         <td class="mono">{{ p.paymentDate | slice: 0 : 10 }}</td>
@@ -144,7 +157,7 @@
         </td>
       </tr>
       <tr *ngIf="filtered.length === 0">
-        <td colspan="7" class="empty-state">No payments match this search.</td>
+        <td colspan="8" class="empty-state">No payments match this search.</td>
       </tr>
     </tbody>
   </table>

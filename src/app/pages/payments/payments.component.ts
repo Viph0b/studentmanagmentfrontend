@@ -4,10 +4,12 @@ import { FormsModule } from "@angular/forms";
 
 import { FeePaymentService } from "../../services/fee-payment.service";
 import { StudentService } from "../../services/student.service";
+import { MajorService } from "../../services/major.service";
 import { ToastService } from "../../services/toast.service";
 import { ConfirmService } from "../../services/confirm.service";
 import { StudentFeePayment } from "../../models/fee-payment.model";
 import { Student } from "../../models/student.model";
+import { Major } from "../../models/major.model";
 
 type PaymentDraft = {
   studentId: number;
@@ -34,6 +36,7 @@ const BLANK: PaymentDraft = {
 export class PaymentsComponent implements OnInit {
   payments: StudentFeePayment[] = [];
   students: Student[] = [];
+  majors: Major[] = [];
   semesterOptions = [1, 2, 3, 4, 5, 6, 7, 8];
   loading = true;
   error = "";
@@ -48,6 +51,7 @@ export class PaymentsComponent implements OnInit {
   constructor(
     private paymentSvc: FeePaymentService,
     private studentSvc: StudentService,
+    private majorSvc: MajorService,
     private toastSvc: ToastService,
     private confirmSvc: ConfirmService,
   ) {}
@@ -58,12 +62,35 @@ export class PaymentsComponent implements OnInit {
       next: (students) => (this.students = students),
       error: () => (this.students = []),
     });
+    this.majorSvc.getAll().subscribe({
+      next: (majors) => (this.majors = majors),
+      error: () => (this.majors = []),
+    });
   }
 
   studentName(id: number): string {
     return (
       this.students.find((s) => s.studentId === id)?.studentName ?? String(id)
     );
+  }
+
+  studentMajorName(id: number): string {
+    return (
+      this.students.find((s) => s.studentId === id)?.majorName ?? "—"
+    );
+  }
+
+  get selectedStudent(): Student | undefined {
+    return this.students.find((s) => s.studentId === Number(this.draft.studentId));
+  }
+
+  get selectedMajor(): Major | undefined {
+    return this.majors.find((m) => m.majorId === this.selectedStudent?.majorId);
+  }
+
+  onStudentChange(): void {
+    const price = this.selectedMajor?.pricePerSemester;
+    if (price != null) this.draft.amountPaid = price;
   }
 
   load(): void {
