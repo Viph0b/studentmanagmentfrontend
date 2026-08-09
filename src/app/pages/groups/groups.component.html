@@ -31,20 +31,12 @@
       </div>
       <div class="field">
         <label for="major">Major</label>
-        <select id="major" name="major" [(ngModel)]="draft.major">
-          <option value="" disabled>Select a major</option>
-          <option *ngFor="let m of majorNames" [value]="m">{{ m }}</option>
+        <select id="major" name="major" [(ngModel)]="draft.majorId">
+          <option [ngValue]="0" disabled>Select a major</option>
+          <option *ngFor="let m of majorOptions" [ngValue]="m.id">
+            {{ m.name }}
+          </option>
         </select>
-      </div>
-      <div class="field">
-        <label for="totalStudents">Total students</label>
-        <input
-          id="totalStudents"
-          name="totalStudents"
-          type="number"
-          min="0"
-          [(ngModel)]="draft.totalStudents"
-        />
       </div>
       <div class="field">
         <label for="currentSemester">Current semester</label>
@@ -140,8 +132,8 @@
         <td>
           <strong>{{ g.groupName }}</strong>
         </td>
-        <td>{{ g.major }}</td>
-        <td class="mono">{{ g.totalStudents }}</td>
+        <td>{{ g.majorName }}</td>
+        <td class="mono">{{ g.studentCount }}</td>
         <td class="mono">{{ g.currentSemester }}</td>
         <td class="mono">{{ g.academicYear }}</td>
         <td>{{ g.shift }}</td>

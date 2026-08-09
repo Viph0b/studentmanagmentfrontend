@@ -31,13 +31,11 @@
       </div>
       <div class="field">
         <label for="semester">Semester</label>
-        <input
-          id="semester"
-          name="semester"
-          type="number"
-          min="1"
-          [(ngModel)]="draft.semester"
-        />
+        <select id="semester" name="semester" [(ngModel)]="draft.semester">
+          <option *ngFor="let n of semesterOptions" [ngValue]="n">
+            Semester {{ n }}
+          </option>
+        </select>
       </div>
       <div class="field">
         <label for="amountPaid">Amount paid ($)</label>
@@ -137,7 +135,7 @@
     <tbody>
       <tr *ngFor="let p of filtered">
         <td class="mono">{{ p.paymentId }}</td>
-        <td>{{ studentName(p.studentId) }}</td>
+        <td>{{ p.studentName || studentName(p.studentId) }}</td>
         <td class="mono">{{ p.semester }}</td>
         <td class="mono">${{ p.amountPaid }}</td>
         <td class="mono">{{ p.paymentDate | slice: 0 : 10 }}</td>

@@ -4,6 +4,7 @@ import { Observable } from "rxjs";
 
 import { API_BASE_URL } from "../api-config";
 import { Group } from "../models/group.model";
+import { LabelValue } from "../models/label-value.model";
 
 @Injectable({ providedIn: "root" })
 export class GroupService {
@@ -15,8 +16,8 @@ export class GroupService {
     return this.http.get<Group[]>(this.baseUrl);
   }
 
-  getNames(): Observable<string[]> {
-    return this.http.get<string[]>(`${this.baseUrl}/getgroupnames`);
+  getOptions(): Observable<LabelValue[]> {
+    return this.http.get<LabelValue[]>(`${this.baseUrl}/getgroupoptions`);
   }
 
   getById(groupId: number): Observable<Group> {

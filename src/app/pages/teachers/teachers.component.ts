@@ -7,13 +7,14 @@ import { SubjectService } from "../../services/subject.service";
 import { ToastService } from "../../services/toast.service";
 import { ConfirmService } from "../../services/confirm.service";
 import { Teacher } from "../../models/teacher.model";
+import { LabelValue } from "../../models/label-value.model";
 
 type TeacherDraft = {
   teacherName: string;
   gender: string;
   dateOfBirth: string;
   phoneNumber: string;
-  subjects: string[];
+  subjectIds: number[];
   salary: number;
 };
 
@@ -22,7 +23,7 @@ const BLANK: TeacherDraft = {
   gender: "Male",
   dateOfBirth: "",
   phoneNumber: "",
-  subjects: [],
+  subjectIds: [],
   salary: 0,
 };
 
@@ -38,11 +39,11 @@ export class TeachersComponent implements OnInit {
   error = "";
   search = "";
 
-  subjectOptions: string[] = [];
+  subjectOptions: LabelValue[] = [];
   showAllSubjects = false;
   readonly subjectsPreviewLimit = 25;
 
-  get visibleSubjects(): string[] {
+  get visibleSubjects(): LabelValue[] {
     return this.showAllSubjects
       ? this.subjectOptions
       : this.subjectOptions.slice(0, this.subjectsPreviewLimit);
@@ -69,22 +70,22 @@ export class TeachersComponent implements OnInit {
   }
 
   loadSubjects(): void {
-    this.subjectSvc.getNames().subscribe({
+    this.subjectSvc.getOptions().subscribe({
       next: (subjects) => (this.subjectOptions = subjects),
       error: () => (this.subjectOptions = []),
     });
   }
 
-  isSubjectChecked(subject: string): boolean {
-    return this.draft.subjects.includes(subject);
+  isSubjectChecked(subject: LabelValue): boolean {
+    return this.draft.subjectIds.includes(subject.id);
   }
 
-  toggleSubject(subject: string): void {
-    const idx = this.draft.subjects.indexOf(subject);
+  toggleSubject(subject: LabelValue): void {
+    const idx = this.draft.subjectIds.indexOf(subject.id);
     if (idx === -1) {
-      this.draft.subjects.push(subject);
+      this.draft.subjectIds.push(subject.id);
     } else {
-      this.draft.subjects.splice(idx, 1);
+      this.draft.subjectIds.splice(idx, 1);
     }
     this.subjectError = "";
   }
@@ -114,7 +115,7 @@ export class TeachersComponent implements OnInit {
     return this.teachers.filter(
       (t) =>
         t.teacherName?.toLowerCase().includes(q) ||
-        t.subjects?.join(", ").toLowerCase().includes(q) ||
+        t.subjectNames?.join(", ").toLowerCase().includes(q) ||
         String(t.teacherId).includes(q),
     );
   }
@@ -136,7 +137,7 @@ export class TeachersComponent implements OnInit {
       gender: t.gender,
       dateOfBirth: t.dateOfBirth ? t.dateOfBirth.substring(0, 10) : "",
       phoneNumber: t.phoneNumber,
-      subjects: t.subjects ?? [],
+      subjectIds: t.subjectIds ?? [],
       salary: t.salary,
     };
     this.formError = "";
@@ -160,7 +161,7 @@ export class TeachersComponent implements OnInit {
     }
     this.phoneError = "";
     this.subjectError = "";
-    if (this.draft.subjects.length === 0) {
+    if (this.draft.subjectIds.length === 0) {
       this.subjectError = "Select at least one subject.";
       return;
     }
@@ -180,7 +181,7 @@ export class TeachersComponent implements OnInit {
       gender: this.draft.gender,
       dateOfBirth: this.draft.dateOfBirth,
       phoneNumber: this.draft.phoneNumber,
-      subjects: this.draft.subjects,
+      subjectIds: this.draft.subjectIds,
       salary: Number(this.draft.salary) || 0,
     };
 

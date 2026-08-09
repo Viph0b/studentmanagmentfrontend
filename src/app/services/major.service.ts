@@ -4,6 +4,7 @@ import { Observable } from "rxjs";
 
 import { API_BASE_URL } from "../api-config";
 import { Major } from "../models/major.model";
+import { LabelValue } from "../models/label-value.model";
 
 @Injectable({ providedIn: "root" })
 export class MajorService {
@@ -15,8 +16,8 @@ export class MajorService {
     return this.http.get<Major[]>(this.baseUrl);
   }
 
-  getNames(): Observable<string[]> {
-    return this.http.get<string[]>(`${this.baseUrl}/getmajornames`);
+  getOptions(): Observable<LabelValue[]> {
+    return this.http.get<LabelValue[]>(`${this.baseUrl}/getmajoroptions`);
   }
 
   getSubjects(): Observable<string[]> {

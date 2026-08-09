@@ -10,14 +10,14 @@ import { SubjectService } from '../../services/subject.service';
 import { ToastService } from '../../services/toast.service';
 import { ConfirmService } from '../../services/confirm.service';
 import { ClassSchedule } from '../../models/class-schedule.model';
+import { LabelValue } from '../../models/label-value.model';
 import { Teacher } from '../../models/teacher.model';
 
 type ScheduleDraft = {
-  groupName: string;
-  major: string;
+  groupId: number;
+  majorId: number;
   teacherId: number;
-  teacherName: string;
-  subject: string;
+  subjectId: number;
   semester: number;
   academicYear: string;
   dayOfWeek: string;
@@ -28,11 +28,10 @@ type ScheduleDraft = {
 };
 
 const BLANK: ScheduleDraft = {
-  groupName: '',
-  major: '',
+  groupId: 0,
+  majorId: 0,
   teacherId: 0,
-  teacherName: '',
-  subject: '',
+  subjectId: 0,
   semester: 1,
   academicYear: '2025-2026',
   dayOfWeek: 'Monday',
@@ -57,9 +56,9 @@ export class ScheduleComponent implements OnInit {
   error = '';
   search = '';
 
-  majorNames: string[] = [];
-  groupNames: string[] = [];
-  subjectOptions: string[] = [];
+  majorOptions: LabelValue[] = [];
+  groupOptions: LabelValue[] = [];
+  subjectOptions: LabelValue[] = [];
   teachers: Teacher[] = [];
 
   showForm = false;
@@ -84,16 +83,16 @@ export class ScheduleComponent implements OnInit {
   }
 
   loadLookups(): void {
-    this.majorSvc.getNames().subscribe({
-      next: (names) => (this.majorNames = names),
-      error: () => (this.majorNames = []),
+    this.majorSvc.getOptions().subscribe({
+      next: (options) => (this.majorOptions = options),
+      error: () => (this.majorOptions = []),
     });
-    this.groupSvc.getNames().subscribe({
-      next: (names) => (this.groupNames = names),
-      error: () => (this.groupNames = []),
+    this.groupSvc.getOptions().subscribe({
+      next: (options) => (this.groupOptions = options),
+      error: () => (this.groupOptions = []),
     });
-    this.subjectSvc.getNames().subscribe({
-      next: (subjects) => (this.subjectOptions = subjects),
+    this.subjectSvc.getOptions().subscribe({
+      next: (options) => (this.subjectOptions = options),
       error: () => (this.subjectOptions = []),
     });
     this.teacherSvc.getAll().subscribe({
@@ -123,7 +122,7 @@ export class ScheduleComponent implements OnInit {
     return this.schedules.filter(
       (s) =>
         s.groupName?.toLowerCase().includes(q) ||
-        s.subject?.toLowerCase().includes(q) ||
+        s.subjectName?.toLowerCase().includes(q) ||
         s.teacherName?.toLowerCase().includes(q) ||
         s.room?.toLowerCase().includes(q)
     );
@@ -139,11 +138,10 @@ export class ScheduleComponent implements OnInit {
   openEdit(s: ClassSchedule): void {
     this.editingId = s.scheduleId;
     this.draft = {
-      groupName: s.groupName,
-      major: s.major,
+      groupId: s.groupId,
+      majorId: s.majorId,
       teacherId: s.teacherId,
-      teacherName: s.teacherName,
-      subject: s.subject,
+      subjectId: s.subjectId,
       semester: s.semester,
       academicYear: s.academicYear,
       dayOfWeek: s.dayOfWeek,
@@ -162,22 +160,22 @@ export class ScheduleComponent implements OnInit {
   }
 
   save(): void {
-    if (!this.draft.groupName.trim() || !this.draft.subject.trim()) {
+    if (!this.draft.groupId || !this.draft.subjectId) {
       this.formError = 'Group and subject are required.';
+      return;
+    }
+    if (!this.draft.teacherId) {
+      this.formError = 'Teacher is required.';
       return;
     }
     this.saving = true;
     this.formError = '';
 
-    const selectedTeacher = this.teachers.find(
-      (t) => t.teacherId === this.draft.teacherId
-    );
     const base = {
-      groupName: this.draft.groupName,
-      major: this.draft.major,
+      groupId: Number(this.draft.groupId) || 0,
+      majorId: Number(this.draft.majorId) || 0,
       teacherId: Number(this.draft.teacherId) || 0,
-      teacherName: selectedTeacher?.teacherName ?? this.draft.teacherName,
-      subject: this.draft.subject,
+      subjectId: Number(this.draft.subjectId) || 0,
       semester: Number(this.draft.semester) || 1,
       academicYear: this.draft.academicYear,
       dayOfWeek: this.draft.dayOfWeek,
@@ -218,7 +216,7 @@ export class ScheduleComponent implements OnInit {
   remove(s: ClassSchedule): void {
     this.confirmSvc.confirm({
       title: 'Remove session',
-      message: `Remove the ${s.subject} session for ${s.groupName}? This cannot be undone.`,
+      message: `Remove the ${s.subjectName} session for ${s.groupName}? This cannot be undone.`,
       confirmLabel: 'Remove',
       danger: true,
     }).subscribe((confirmed) => {

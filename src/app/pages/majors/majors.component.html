@@ -39,35 +39,6 @@
         />
       </div>
       <div class="field span-2">
-        <label>Groups</label>
-        <div class="check-list">
-          <label
-            class="check-item"
-            *ngFor="let group of visibleGroups"
-            [class.checked]="isGroupChecked(group)"
-          >
-            <input
-              type="checkbox"
-              [checked]="isGroupChecked(group)"
-              (change)="toggleGroup(group)"
-            />
-            <span>{{ group }}</span>
-          </label>
-        </div>
-        <button
-          type="button"
-          class="btn btn-ghost btn-sm show-more-btn"
-          *ngIf="groupOptions.length > previewLimit"
-          (click)="toggleShowGroups()"
-        >
-          {{
-            showAllGroups
-              ? "Show less"
-              : "Show more (" + (groupOptions.length - previewLimit) + " more)"
-          }}
-        </button>
-      </div>
-      <div class="field span-2">
         <label>Subjects</label>
         <div class="check-list">
           <label
@@ -80,7 +51,7 @@
               [checked]="isSubjectChecked(subject)"
               (change)="toggleSubject(subject)"
             />
-            <span>{{ subject }}</span>
+            <span>{{ subject.name }}</span>
           </label>
         </div>
         <button
@@ -152,10 +123,10 @@
         <td>{{ m.majorName }}</td>
         <td class="mono">${{ m.pricePerSemester }}</td>
         <td>
-          <span class="chip" *ngFor="let g of m.group">{{ g }}</span>
+          <span class="chip" *ngFor="let g of m.groupNames">{{ g }}</span>
         </td>
         <td>
-          <span class="chip" *ngFor="let s of m.subjects">{{ s }}</span>
+          <span class="chip" *ngFor="let s of m.subjectNames">{{ s }}</span>
         </td>
         <td>
           <div class="row-actions">

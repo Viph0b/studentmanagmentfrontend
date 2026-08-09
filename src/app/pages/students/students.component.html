@@ -76,16 +76,20 @@
       </div>
       <div class="field">
         <label for="major">Major</label>
-        <select id="major" name="major" [(ngModel)]="draft.major">
-          <option value="" disabled>Select a major</option>
-          <option *ngFor="let m of majorNames" [value]="m">{{ m }}</option>
+        <select id="major" name="major" [(ngModel)]="draft.majorId">
+          <option [ngValue]="0" disabled>Select a major</option>
+          <option *ngFor="let m of majorOptions" [ngValue]="m.id">
+            {{ m.name }}
+          </option>
         </select>
       </div>
       <div class="field">
         <label for="groupName">Group</label>
-        <select id="groupName" name="groupName" [(ngModel)]="draft.groupName">
-          <option value="" disabled>Select a group</option>
-          <option *ngFor="let g of groupNames" [value]="g">{{ g }}</option>
+        <select id="groupName" name="groupName" [(ngModel)]="draft.groupId">
+          <option [ngValue]="0" disabled>Select a group</option>
+          <option *ngFor="let g of groupOptions" [ngValue]="g.id">
+            {{ g.name }}
+          </option>
         </select>
       </div>
     </div>
@@ -152,7 +156,7 @@
         <td>
           <span class="chip">{{ s.groupName || "—" }}</span>
         </td>
-        <td>{{ s.major || "—" }}</td>
+        <td>{{ s.majorName || "—" }}</td>
         <td class="mono">{{ s.phoneNumber || "—" }}</td>
         <td>{{ s.email || "—" }}</td>
         <td>

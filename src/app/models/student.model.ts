@@ -26,8 +26,10 @@ export interface Student {
   dateOfBirth: string; // ISO date string
   phoneNumber: string;
   email: string;
-  major: string;
-  groupName: string;
+  majorId: number;
+  groupId: number;
+  majorName?: string;
+  groupName?: string;
   attendances: Attendance[];
   exams: Exam[];
 }

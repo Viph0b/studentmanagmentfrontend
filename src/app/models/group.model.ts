@@ -2,8 +2,9 @@ export interface Group {
   id?: string;
   groupId: number;
   groupName: string;
-  major: string;
-  totalStudents: number;
+  majorId: number;
+  majorName?: string;
+  studentCount?: number;
   currentSemester: number;
   academicYear: string;
   shift: string;

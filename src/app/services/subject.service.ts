@@ -4,6 +4,7 @@ import { Observable } from "rxjs";
 
 import { API_BASE_URL } from "../api-config";
 import { Subject } from "../models/subject.model";
+import { LabelValue } from "../models/label-value.model";
 
 @Injectable({ providedIn: "root" })
 export class SubjectService {
@@ -15,8 +16,8 @@ export class SubjectService {
     return this.http.get<Subject[]>(this.baseUrl);
   }
 
-  getNames(): Observable<string[]> {
-    return this.http.get<string[]>(`${this.baseUrl}/getsubjectnames`);
+  getOptions(): Observable<LabelValue[]> {
+    return this.http.get<LabelValue[]>(`${this.baseUrl}/getsubjectoptions`);
   }
 
   getById(subjectId: number): Observable<Subject> {

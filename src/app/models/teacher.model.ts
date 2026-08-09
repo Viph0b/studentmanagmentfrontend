@@ -5,7 +5,8 @@ export interface Teacher {
   gender: string;
   dateOfBirth: string; // ISO date string
   phoneNumber: string;
-  subjects: string[];
+  subjectIds: number[];
+  subjectNames?: string[];
   salary: number;
 }
 

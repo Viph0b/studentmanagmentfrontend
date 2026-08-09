@@ -4,6 +4,7 @@ import { Observable } from 'rxjs';
 
 import { API_BASE_URL } from '../api-config';
 import { Teacher } from '../models/teacher.model';
+import { LabelValue } from '../models/label-value.model';
 
 @Injectable({ providedIn: 'root' })
 export class TeacherService {
@@ -13,6 +14,10 @@ export class TeacherService {
 
   getAll(): Observable<Teacher[]> {
     return this.http.get<Teacher[]>(this.baseUrl);
+  }
+
+  getOptions(): Observable<LabelValue[]> {
+    return this.http.get<LabelValue[]>(`${this.baseUrl}/getteacheroptions`);
   }
 
   getById(teacherId: number): Observable<Teacher> {

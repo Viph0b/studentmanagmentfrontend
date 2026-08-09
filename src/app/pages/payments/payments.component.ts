@@ -1,13 +1,13 @@
-import { CommonModule } from '@angular/common';
-import { Component, OnInit } from '@angular/core';
-import { FormsModule } from '@angular/forms';
+import { CommonModule } from "@angular/common";
+import { Component, OnInit } from "@angular/core";
+import { FormsModule } from "@angular/forms";
 
-import { FeePaymentService } from '../../services/fee-payment.service';
-import { StudentService } from '../../services/student.service';
-import { ToastService } from '../../services/toast.service';
-import { ConfirmService } from '../../services/confirm.service';
-import { StudentFeePayment } from '../../models/fee-payment.model';
-import { Student } from '../../models/student.model';
+import { FeePaymentService } from "../../services/fee-payment.service";
+import { StudentService } from "../../services/student.service";
+import { ToastService } from "../../services/toast.service";
+import { ConfirmService } from "../../services/confirm.service";
+import { StudentFeePayment } from "../../models/fee-payment.model";
+import { Student } from "../../models/student.model";
 
 type PaymentDraft = {
   studentId: number;
@@ -23,34 +23,35 @@ const BLANK: PaymentDraft = {
   semester: 1,
   amountPaid: 0,
   paymentDate: new Date().toISOString().substring(0, 10),
-  paymentMethod: 'Cash',
-  status: 'Paid',
+  paymentMethod: "Cash",
+  status: "Paid",
 };
 
 @Component({
-  selector: 'app-payments',
+  selector: "app-payments",
   standalone: true,
   imports: [CommonModule, FormsModule],
-  templateUrl: './payments.component.html',
+  templateUrl: "./payments.component.html",
 })
 export class PaymentsComponent implements OnInit {
   payments: StudentFeePayment[] = [];
   students: Student[] = [];
+  semesterOptions = [1, 2, 3, 4, 5, 6, 7, 8];
   loading = true;
-  error = '';
-  search = '';
+  error = "";
+  search = "";
 
   showForm = false;
   editingId: number | null = null;
   draft: PaymentDraft = { ...BLANK };
   saving = false;
-  formError = '';
+  formError = "";
 
   constructor(
     private paymentSvc: FeePaymentService,
     private studentSvc: StudentService,
     private toastSvc: ToastService,
-    private confirmSvc: ConfirmService
+    private confirmSvc: ConfirmService,
   ) {}
 
   ngOnInit(): void {
@@ -62,19 +63,21 @@ export class PaymentsComponent implements OnInit {
   }
 
   studentName(id: number): string {
-    return this.students.find((s) => s.studentId === id)?.studentName ?? String(id);
+    return (
+      this.students.find((s) => s.studentId === id)?.studentName ?? String(id)
+    );
   }
 
   load(): void {
     this.loading = true;
-    this.error = '';
+    this.error = "";
     this.paymentSvc.getAll().subscribe({
       next: (data) => {
         this.payments = data;
         this.loading = false;
       },
       error: () => {
-        this.error = 'Could not load payments. Confirm the API is running.';
+        this.error = "Could not load payments. Confirm the API is running.";
         this.loading = false;
       },
     });
@@ -88,18 +91,21 @@ export class PaymentsComponent implements OnInit {
         this.studentName(p.studentId).toLowerCase().includes(q) ||
         String(p.studentId).includes(q) ||
         p.paymentMethod?.toLowerCase().includes(q) ||
-        p.status?.toLowerCase().includes(q)
+        p.status?.toLowerCase().includes(q),
     );
   }
 
   isPaid(status: string): boolean {
-    return status?.trim().toLowerCase() === 'paid';
+    return status?.trim().toLowerCase() === "paid";
   }
 
   openCreate(): void {
     this.editingId = null;
-    this.draft = { ...BLANK, paymentDate: new Date().toISOString().substring(0, 10) };
-    this.formError = '';
+    this.draft = {
+      ...BLANK,
+      paymentDate: new Date().toISOString().substring(0, 10),
+    };
+    this.formError = "";
     this.showForm = true;
   }
 
@@ -109,26 +115,26 @@ export class PaymentsComponent implements OnInit {
       studentId: p.studentId,
       semester: p.semester,
       amountPaid: p.amountPaid,
-      paymentDate: p.paymentDate ? p.paymentDate.substring(0, 10) : '',
+      paymentDate: p.paymentDate ? p.paymentDate.substring(0, 10) : "",
       paymentMethod: p.paymentMethod,
       status: p.status,
     };
-    this.formError = '';
+    this.formError = "";
     this.showForm = true;
   }
 
   cancelForm(): void {
     this.showForm = false;
-    this.formError = '';
+    this.formError = "";
   }
 
   save(): void {
     if (!this.draft.studentId) {
-      this.formError = 'Please select a student.';
+      this.formError = "Please select a student.";
       return;
     }
     this.saving = true;
-    this.formError = '';
+    this.formError = "";
 
     const base = {
       studentId: Number(this.draft.studentId),
@@ -144,13 +150,13 @@ export class PaymentsComponent implements OnInit {
     if (this.editingId === null) {
       const payload: StudentFeePayment = { paymentId: 0, ...base };
       this.paymentSvc.create(payload).subscribe({
-        next: () => this.onSaved('Payment recorded.'),
+        next: () => this.onSaved("Payment recorded."),
         error: () => this.onSaveError(),
       });
     } else {
       const payload: StudentFeePayment = { paymentId: this.editingId, ...base };
       this.paymentSvc.update(this.editingId, payload).subscribe({
-        next: () => this.onSaved('Payment updated.'),
+        next: () => this.onSaved("Payment updated."),
         error: () => this.onSaveError(),
       });
     }
@@ -165,26 +171,28 @@ export class PaymentsComponent implements OnInit {
 
   private onSaveError(): void {
     this.saving = false;
-    this.formError = 'Save failed. Check the API connection and try again.';
+    this.formError = "Save failed. Check the API connection and try again.";
   }
 
   remove(p: StudentFeePayment): void {
-    this.confirmSvc.confirm({
-      title: 'Remove payment',
-      message: `Remove payment #${p.paymentId} for student ${this.studentName(p.studentId)}? This cannot be undone.`,
-      confirmLabel: 'Remove',
-      danger: true,
-    }).subscribe((confirmed) => {
-      if (!confirmed) return;
-      this.paymentSvc.delete(p.paymentId).subscribe({
-        next: () => {
-          this.toastSvc.success('Payment removed.');
-          this.load();
-        },
-        error: () => {
-          this.toastSvc.error('Delete failed. Please try again.');
-        },
+    this.confirmSvc
+      .confirm({
+        title: "Remove payment",
+        message: `Remove payment #${p.paymentId} for student ${this.studentName(p.studentId)}? This cannot be undone.`,
+        confirmLabel: "Remove",
+        danger: true,
+      })
+      .subscribe((confirmed) => {
+        if (!confirmed) return;
+        this.paymentSvc.delete(p.paymentId).subscribe({
+          next: () => {
+            this.toastSvc.success("Payment removed.");
+            this.load();
+          },
+          error: () => {
+            this.toastSvc.error("Delete failed. Please try again.");
+          },
+        });
       });
-    });
   }
 }

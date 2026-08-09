@@ -15,7 +15,7 @@
   <h2>
     {{ editingId === null ? "Add a teacher" : "Edit teacher #" + editingId }}
   </h2>
-  <span class="form-sub">Separate multiple subjects with commas.</span>
+  <span class="form-sub">Tick the subjects this teacher teaches.</span>
 
   <div class="banner banner-error" *ngIf="formError">{{ formError }}</div>
 
@@ -81,7 +81,7 @@
               [checked]="isSubjectChecked(subject)"
               (change)="toggleSubject(subject)"
             />
-            <span>{{ subject }}</span>
+            <span>{{ subject.name }}</span>
           </label>
         </div>
         <button
@@ -159,7 +159,7 @@
         <td>{{ t.teacherName }}</td>
         <td>{{ t.gender }}</td>
         <td>
-          <span class="chip" *ngFor="let subj of t.subjects">{{ subj }}</span>
+          <span class="chip" *ngFor="let subj of t.subjectNames">{{ subj }}</span>
         </td>
         <td class="mono">{{ t.phoneNumber || "—" }}</td>
         <td class="mono">${{ t.salary }}</td>

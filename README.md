@@ -22,16 +22,24 @@ This starts the API at `http://localhost:5073` (see
 `http://localhost:4200`, which is Angular's default dev port — don't change
 the port unless you also update `Program.cs`.
 
-Import your seed JSON files into MongoDB collections first if they're empty:
+Import your seed JSON files into MongoDB collections first if they're
+empty. Collections link to each other by numeric IDs (`major_id`,
+`group_id`, `teacher_id`, `subject_id`), and a `counters` collection
+provides atomic auto-increment IDs:
 
 ```bash
-mongoimport --db school_management --collection students --jsonArray --file school_managements_students.json
-mongoimport --db school_management --collection teachers --jsonArray --file School_management_teachers.json
-mongoimport --db school_management --collection majors --jsonArray --file School_management_majors.json
-mongoimport --db school_management --collection groups --jsonArray --file School_management_Groups.json
+mongoimport --db school_management --collection counters --jsonArray --file school_management.counters.json
+mongoimport --db school_management --collection students --jsonArray --file school_management_students.json
+mongoimport --db school_management --collection teachers --jsonArray --file school_management_teachers.json
+mongoimport --db school_management --collection majors --jsonArray --file school_management_majors.json
+mongoimport --db school_management --collection groups --jsonArray --file school_management_Groups.json
+mongoimport --db school_management --collection subjects --jsonArray --file school_management_subjects.json
 mongoimport --db school_management --collection class_schedule --jsonArray --file school_management_class_schedule.json
 mongoimport --db school_management --collection students_fees_payments --jsonArray --file School_management_students_fees_payments.json
 ```
+
+Import order matters only for the seed data's `counters` values to match;
+once past that, the API keeps the sequences in sync automatically.
 
 ## 2. Run the frontend
 
@@ -59,16 +67,26 @@ change it: `src/app/api-config.ts`.
 | Fee payments      | `/api/StudentFeePayment`     | `StudentFeePayment` |
 
 - Numeric IDs (`studentId`, `teacherId`, etc.) are assigned by the server on
-  create — the forms don't ask for them.
+  create via the `counters` collection — the forms don't ask for them.
+- Cross-collection links are stored as IDs only (e.g. a student holds
+  `majorId`/`groupId`, a teacher holds `subjectIds`). Display names are
+  joined on the API side (`majorName`, `groupName`, `subjectNames`,
+  `teacherName`, `studentName`), so renaming a major/teacher/subject/group
+  propagates everywhere automatically.
+- `Group.studentCount` is computed live from the students collection; it is
+  never stored, so it can't go stale.
+- Deleting a record that is still referenced (e.g. a major with students or
+  a teacher with schedule entries) returns `409 Conflict` explaining the
+  reference counts.
 - JSON field names are camelCase because that's ASP.NET Core's default
-  System.Text.Json output (e.g. C#'s `TotalStudents` becomes
-  `totalStudents` in the wire format), which is what the TypeScript models
-  in `src/app/models/` mirror.
+  System.Text.Json output (e.g. C#'s `MajorId` becomes `majorId` in the wire
+  format), which is what the TypeScript models in `src/app/models/` mirror.
 - `Student.attendances` and `Student.exams` are nested arrays managed
   server-side; the student form edits the core profile fields only and
   preserves those arrays untouched on update.
-- Comma-separated inputs (subjects, groups) are split/joined client-side
-  into the string arrays the API expects.
+- Dropdowns send the numeric IDs of the selected option (e.g. the student
+  form sends `majorId` and `groupId`), so selecting a value never depends on
+  the display name matching exactly.
 - Update endpoints vary between returning `204 No Content` and `200 OK` with
   a body across controllers — the services handle both since Angular's
   `HttpClient` doesn't require a body to resolve successfully.

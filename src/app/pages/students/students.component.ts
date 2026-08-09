@@ -8,6 +8,7 @@ import { GroupService } from "../../services/group.service";
 import { ToastService } from "../../services/toast.service";
 import { ConfirmService } from "../../services/confirm.service";
 import { Student } from "../../models/student.model";
+import { LabelValue } from "../../models/label-value.model";
 
 type StudentDraft = {
   studentName: string;
@@ -15,8 +16,8 @@ type StudentDraft = {
   dateOfBirth: string;
   phoneNumber: string;
   email: string;
-  major: string;
-  groupName: string;
+  majorId: number;
+  groupId: number;
 };
 
 const BLANK: StudentDraft = {
@@ -25,8 +26,8 @@ const BLANK: StudentDraft = {
   dateOfBirth: "",
   phoneNumber: "",
   email: "",
-  major: "",
-  groupName: "",
+  majorId: 0,
+  groupId: 0,
 };
 
 @Component({
@@ -40,8 +41,8 @@ export class StudentsComponent implements OnInit {
   loading = true;
   error = "";
 
-  majorNames: string[] = [];
-  groupNames: string[] = [];
+  majorOptions: LabelValue[] = [];
+  groupOptions: LabelValue[] = [];
 
   search = "";
 
@@ -83,14 +84,14 @@ export class StudentsComponent implements OnInit {
   }
 
   loadLookups(): void {
-    this.majorSvc.getNames().subscribe({
-      next: (names) => (this.majorNames = names),
-      error: () => (this.majorNames = []),
+    this.majorSvc.getOptions().subscribe({
+      next: (options) => (this.majorOptions = options),
+      error: () => (this.majorOptions = []),
     });
 
-    this.groupSvc.getNames().subscribe({
-      next: (names) => (this.groupNames = names),
-      error: () => (this.groupNames = []),
+    this.groupSvc.getOptions().subscribe({
+      next: (options) => (this.groupOptions = options),
+      error: () => (this.groupOptions = []),
     });
   }
 
@@ -101,7 +102,7 @@ export class StudentsComponent implements OnInit {
       (s) =>
         s.studentName?.toLowerCase().includes(q) ||
         s.email?.toLowerCase().includes(q) ||
-        s.major?.toLowerCase().includes(q) ||
+        s.majorName?.toLowerCase().includes(q) ||
         s.groupName?.toLowerCase().includes(q) ||
         String(s.studentId).includes(q),
     );
@@ -124,8 +125,8 @@ export class StudentsComponent implements OnInit {
       dateOfBirth: s.dateOfBirth ? s.dateOfBirth.substring(0, 10) : "",
       phoneNumber: s.phoneNumber,
       email: s.email,
-      major: s.major,
-      groupName: s.groupName,
+      majorId: s.majorId,
+      groupId: s.groupId,
     };
     this.formError = "";
     this.emailError = "";
@@ -172,8 +173,8 @@ export class StudentsComponent implements OnInit {
         dateOfBirth: this.draft.dateOfBirth,
         phoneNumber: this.draft.phoneNumber,
         email: this.draft.email,
-        major: this.draft.major,
-        groupName: this.draft.groupName,
+        majorId: Number(this.draft.majorId) || 0,
+        groupId: Number(this.draft.groupId) || 0,
         attendances: [],
         exams: [],
       };
@@ -193,8 +194,8 @@ export class StudentsComponent implements OnInit {
         dateOfBirth: this.draft.dateOfBirth,
         phoneNumber: this.draft.phoneNumber,
         email: this.draft.email,
-        major: this.draft.major,
-        groupName: this.draft.groupName,
+        majorId: Number(this.draft.majorId) || 0,
+        groupId: Number(this.draft.groupId) || 0,
         attendances: existing?.attendances ?? [],
         exams: existing?.exams ?? [],
       };

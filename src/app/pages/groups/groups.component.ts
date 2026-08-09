@@ -7,11 +7,11 @@ import { MajorService } from '../../services/major.service';
 import { ToastService } from '../../services/toast.service';
 import { ConfirmService } from '../../services/confirm.service';
 import { Group } from '../../models/group.model';
+import { LabelValue } from '../../models/label-value.model';
 
 type GroupDraft = {
   groupName: string;
-  major: string;
-  totalStudents: number;
+  majorId: number;
   currentSemester: number;
   academicYear: string;
   shift: string;
@@ -20,8 +20,7 @@ type GroupDraft = {
 
 const BLANK: GroupDraft = {
   groupName: '',
-  major: '',
-  totalStudents: 0,
+  majorId: 0,
   currentSemester: 1,
   academicYear: '2025-2026',
   shift: 'Morning',
@@ -40,7 +39,7 @@ export class GroupsComponent implements OnInit {
   error = '';
   search = '';
 
-  majorNames: string[] = [];
+  majorOptions: LabelValue[] = [];
   semesterOptions = [1, 2, 3, 4, 5, 6, 7, 8];
 
   showForm = false;
@@ -62,9 +61,9 @@ export class GroupsComponent implements OnInit {
   }
 
   loadLookups(): void {
-    this.majorSvc.getNames().subscribe({
-      next: (names) => (this.majorNames = names),
-      error: () => (this.majorNames = []),
+    this.majorSvc.getOptions().subscribe({
+      next: (options) => (this.majorOptions = options),
+      error: () => (this.majorOptions = []),
     });
   }
 
@@ -89,7 +88,7 @@ export class GroupsComponent implements OnInit {
     return this.groups.filter(
       (g) =>
         g.groupName?.toLowerCase().includes(q) ||
-        g.major?.toLowerCase().includes(q) ||
+        g.majorName?.toLowerCase().includes(q) ||
         g.status?.toLowerCase().includes(q)
     );
   }
@@ -105,8 +104,7 @@ export class GroupsComponent implements OnInit {
     this.editingId = g.groupId;
     this.draft = {
       groupName: g.groupName,
-      major: g.major,
-      totalStudents: g.totalStudents,
+      majorId: g.majorId,
       currentSemester: g.currentSemester,
       academicYear: g.academicYear,
       shift: g.shift,
@@ -131,8 +129,7 @@ export class GroupsComponent implements OnInit {
 
     const base = {
       groupName: this.draft.groupName,
-      major: this.draft.major,
-      totalStudents: Number(this.draft.totalStudents) || 0,
+      majorId: Number(this.draft.majorId) || 0,
       currentSemester: Number(this.draft.currentSemester) || 1,
       academicYear: this.draft.academicYear,
       shift: this.draft.shift,

@@ -1,11 +1,14 @@
 export interface ClassSchedule {
   id?: string;
   scheduleId: number;
-  groupName: string;
-  major: string;
+  groupId: number;
+  groupName?: string;
+  majorId: number;
+  majorName?: string;
   teacherId: number;
-  teacherName: string;
-  subject: string;
+  teacherName?: string;
+  subjectId: number;
+  subjectName?: string;
   semester: number;
   academicYear: string;
   dayOfWeek: string;

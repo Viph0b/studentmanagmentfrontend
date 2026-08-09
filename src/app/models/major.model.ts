@@ -3,8 +3,9 @@ export interface Major {
   majorId: number;
   majorName: string;
   pricePerSemester: number;
-  subjects: string[];
-  group: string[];
+  subjectIds: number[];
+  subjectNames?: string[];
+  groupNames?: string[];
 }
 
 export type MajorInput = Omit<Major, 'id' | 'majorId'>;

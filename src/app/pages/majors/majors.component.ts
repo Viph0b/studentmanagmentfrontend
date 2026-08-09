@@ -3,24 +3,22 @@ import { Component, OnInit } from "@angular/core";
 import { FormsModule } from "@angular/forms";
 
 import { MajorService } from "../../services/major.service";
-import { GroupService } from "../../services/group.service";
 import { SubjectService } from "../../services/subject.service";
 import { ToastService } from "../../services/toast.service";
 import { ConfirmService } from "../../services/confirm.service";
 import { Major } from "../../models/major.model";
+import { LabelValue } from "../../models/label-value.model";
 
 type MajorDraft = {
   majorName: string;
   pricePerSemester: number;
-  subjects: string[];
-  groups: string[];
+  subjectIds: number[];
 };
 
 const BLANK: MajorDraft = {
   majorName: "",
   pricePerSemester: 0,
-  subjects: [],
-  groups: [],
+  subjectIds: [],
 };
 
 @Component({
@@ -41,27 +39,18 @@ export class MajorsComponent implements OnInit {
   saving = false;
   formError = "";
 
-  subjectOptions: string[] = [];
-  groupOptions: string[] = [];
+  subjectOptions: LabelValue[] = [];
   showAllSubjects = false;
-  showAllGroups = false;
   readonly previewLimit = 25;
 
-  get visibleSubjects(): string[] {
+  get visibleSubjects(): LabelValue[] {
     return this.showAllSubjects
       ? this.subjectOptions
       : this.subjectOptions.slice(0, this.previewLimit);
   }
 
-  get visibleGroups(): string[] {
-    return this.showAllGroups
-      ? this.groupOptions
-      : this.groupOptions.slice(0, this.previewLimit);
-  }
-
   constructor(
     private majorSvc: MajorService,
-    private groupSvc: GroupService,
     private subjectSvc: SubjectService,
     private toastSvc: ToastService,
     private confirmSvc: ConfirmService,
@@ -73,42 +62,24 @@ export class MajorsComponent implements OnInit {
   }
 
   loadLookups(): void {
-    this.subjectSvc.getNames().subscribe({
+    this.subjectSvc.getOptions().subscribe({
       next: (subjects) => (this.subjectOptions = subjects),
       error: () => (this.subjectOptions = []),
     });
-    this.groupSvc.getNames().subscribe({
-      next: (names) => (this.groupOptions = names),
-      error: () => (this.groupOptions = []),
-    });
   }
 
-  isSubjectChecked(subject: string): boolean {
-    return this.draft.subjects.includes(subject);
+  isSubjectChecked(subject: LabelValue): boolean {
+    return this.draft.subjectIds.includes(subject.id);
   }
 
-  toggleSubject(subject: string): void {
-    const idx = this.draft.subjects.indexOf(subject);
-    if (idx === -1) this.draft.subjects.push(subject);
-    else this.draft.subjects.splice(idx, 1);
-  }
-
-  isGroupChecked(group: string): boolean {
-    return this.draft.groups.includes(group);
-  }
-
-  toggleGroup(group: string): void {
-    const idx = this.draft.groups.indexOf(group);
-    if (idx === -1) this.draft.groups.push(group);
-    else this.draft.groups.splice(idx, 1);
+  toggleSubject(subject: LabelValue): void {
+    const idx = this.draft.subjectIds.indexOf(subject.id);
+    if (idx === -1) this.draft.subjectIds.push(subject.id);
+    else this.draft.subjectIds.splice(idx, 1);
   }
 
   toggleShowSubjects(): void {
     this.showAllSubjects = !this.showAllSubjects;
-  }
-
-  toggleShowGroups(): void {
-    this.showAllGroups = !this.showAllGroups;
   }
 
   load(): void {
@@ -140,7 +111,6 @@ export class MajorsComponent implements OnInit {
     this.draft = { ...BLANK };
     this.formError = "";
     this.showAllSubjects = false;
-    this.showAllGroups = false;
     this.showForm = true;
   }
 
@@ -149,12 +119,10 @@ export class MajorsComponent implements OnInit {
     this.draft = {
       majorName: m.majorName,
       pricePerSemester: m.pricePerSemester,
-      subjects: m.subjects ?? [],
-      groups: m.group ?? [],
+      subjectIds: m.subjectIds ?? [],
     };
     this.formError = "";
     this.showAllSubjects = false;
-    this.showAllGroups = false;
     this.showForm = true;
   }
 
@@ -174,8 +142,7 @@ export class MajorsComponent implements OnInit {
     const base = {
       majorName: this.draft.majorName,
       pricePerSemester: Number(this.draft.pricePerSemester) || 0,
-      subjects: this.draft.subjects,
-      group: this.draft.groups,
+      subjectIds: this.draft.subjectIds,
     };
 
     if (this.editingId === null) {
