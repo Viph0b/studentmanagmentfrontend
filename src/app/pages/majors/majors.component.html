@@ -111,9 +111,30 @@
   <table class="data-table">
     <thead>
       <tr>
-        <th>Major ID</th>
-        <th>Program</th>
-        <th>Price / semester</th>
+        <th
+          class="sortable"
+          [class.sort-asc]="sortKey === 'majorId' && sortDir === 'asc'"
+          [class.sort-desc]="sortKey === 'majorId' && sortDir === 'desc'"
+          (click)="toggleSort('majorId')"
+        >
+          Major ID
+        </th>
+        <th
+          class="sortable"
+          [class.sort-asc]="sortKey === 'majorName' && sortDir === 'asc'"
+          [class.sort-desc]="sortKey === 'majorName' && sortDir === 'desc'"
+          (click)="toggleSort('majorName')"
+        >
+          Program
+        </th>
+        <th
+          class="sortable"
+          [class.sort-asc]="sortKey === 'pricePerSemester' && sortDir === 'asc'"
+          [class.sort-desc]="sortKey === 'pricePerSemester' && sortDir === 'desc'"
+          (click)="toggleSort('pricePerSemester')"
+        >
+          Price / semester
+        </th>
         <th>Groups</th>
         <th>Subjects</th>
         <th></th>

@@ -130,13 +130,48 @@
   <table class="data-table">
     <thead>
       <tr>
-        <th>Payment ID</th>
-        <th>Student</th>
+        <th
+          class="sortable"
+          [class.sort-asc]="sortKey === 'paymentId' && sortDir === 'asc'"
+          [class.sort-desc]="sortKey === 'paymentId' && sortDir === 'desc'"
+          (click)="toggleSort('paymentId')"
+        >
+          Payment ID
+        </th>
+        <th
+          class="sortable"
+          [class.sort-asc]="sortKey === 'student' && sortDir === 'asc'"
+          [class.sort-desc]="sortKey === 'student' && sortDir === 'desc'"
+          (click)="toggleSort('student')"
+        >
+          Student
+        </th>
         <th>Major</th>
-        <th>Semester</th>
-        <th>Amount</th>
+        <th
+          class="sortable"
+          [class.sort-asc]="sortKey === 'semester' && sortDir === 'asc'"
+          [class.sort-desc]="sortKey === 'semester' && sortDir === 'desc'"
+          (click)="toggleSort('semester')"
+        >
+          Semester
+        </th>
+        <th
+          class="sortable"
+          [class.sort-asc]="sortKey === 'amountPaid' && sortDir === 'asc'"
+          [class.sort-desc]="sortKey === 'amountPaid' && sortDir === 'desc'"
+          (click)="toggleSort('amountPaid')"
+        >
+          Amount
+        </th>
         <th>Date</th>
-        <th>Method</th>
+        <th
+          class="sortable"
+          [class.sort-asc]="sortKey === 'paymentMethod' && sortDir === 'asc'"
+          [class.sort-desc]="sortKey === 'paymentMethod' && sortDir === 'desc'"
+          (click)="toggleSort('paymentMethod')"
+        >
+          Method
+        </th>
         <th></th>
       </tr>
     </thead>

@@ -585,6 +585,46 @@ table.data-table thead tr {
   border-bottom: 1px solid rgba(163, 177, 198, 0.3);
 }
 
+table.data-table th.sortable {
+  cursor: pointer;
+  user-select: none;
+  position: relative;
+  padding-right: 30px;
+  transition: color 0.2s var(--ease);
+}
+
+table.data-table th.sortable:hover {
+  color: var(--neu-text);
+}
+
+table.data-table th.sortable::after {
+  content: "";
+  position: absolute;
+  right: 13px;
+  top: 50%;
+  margin-top: -3px;
+  border-left: 4px solid transparent;
+  border-right: 4px solid transparent;
+  border-top: 5px solid rgba(163, 177, 198, 0.9);
+  opacity: 0;
+  transition: opacity 0.2s var(--ease), transform 0.2s var(--ease);
+}
+
+table.data-table th.sortable:hover::after {
+  opacity: 0.45;
+}
+
+table.data-table th.sortable.sort-asc::after {
+  opacity: 1;
+  transform: rotate(180deg);
+  border-top-color: var(--neu-accent);
+}
+
+table.data-table th.sortable.sort-desc::after {
+  opacity: 1;
+  border-top-color: var(--neu-accent);
+}
+
 table.data-table tbody tr {
   transition: all 0.15s var(--ease);
   animation: fadeUp 0.3s var(--ease-out) both;

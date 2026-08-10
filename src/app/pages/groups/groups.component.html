@@ -118,14 +118,70 @@
   <table class="data-table">
     <thead>
       <tr>
-        <th>Group ID</th>
-        <th>Group</th>
-        <th>Major</th>
-        <th>Students</th>
-        <th>Semester</th>
-        <th>Year</th>
-        <th>Shift</th>
-        <th>Status</th>
+        <th
+          class="sortable"
+          [class.sort-asc]="sortKey === 'groupId' && sortDir === 'asc'"
+          [class.sort-desc]="sortKey === 'groupId' && sortDir === 'desc'"
+          (click)="toggleSort('groupId')"
+        >
+          Group ID
+        </th>
+        <th
+          class="sortable"
+          [class.sort-asc]="sortKey === 'groupName' && sortDir === 'asc'"
+          [class.sort-desc]="sortKey === 'groupName' && sortDir === 'desc'"
+          (click)="toggleSort('groupName')"
+        >
+          Group
+        </th>
+        <th
+          class="sortable"
+          [class.sort-asc]="sortKey === 'majorName' && sortDir === 'asc'"
+          [class.sort-desc]="sortKey === 'majorName' && sortDir === 'desc'"
+          (click)="toggleSort('majorName')"
+        >
+          Major
+        </th>
+        <th
+          class="sortable"
+          [class.sort-asc]="sortKey === 'studentCount' && sortDir === 'asc'"
+          [class.sort-desc]="sortKey === 'studentCount' && sortDir === 'desc'"
+          (click)="toggleSort('studentCount')"
+        >
+          Students
+        </th>
+        <th
+          class="sortable"
+          [class.sort-asc]="sortKey === 'currentSemester' && sortDir === 'asc'"
+          [class.sort-desc]="sortKey === 'currentSemester' && sortDir === 'desc'"
+          (click)="toggleSort('currentSemester')"
+        >
+          Semester
+        </th>
+        <th
+          class="sortable"
+          [class.sort-asc]="sortKey === 'academicYear' && sortDir === 'asc'"
+          [class.sort-desc]="sortKey === 'academicYear' && sortDir === 'desc'"
+          (click)="toggleSort('academicYear')"
+        >
+          Year
+        </th>
+        <th
+          class="sortable"
+          [class.sort-asc]="sortKey === 'shift' && sortDir === 'asc'"
+          [class.sort-desc]="sortKey === 'shift' && sortDir === 'desc'"
+          (click)="toggleSort('shift')"
+        >
+          Shift
+        </th>
+        <th
+          class="sortable"
+          [class.sort-asc]="sortKey === 'status' && sortDir === 'asc'"
+          [class.sort-desc]="sortKey === 'status' && sortDir === 'desc'"
+          (click)="toggleSort('status')"
+        >
+          Status
+        </th>
         <th></th>
       </tr>
     </thead>

@@ -14,6 +14,7 @@ import {
   isPhone,
   isRealDate,
 } from "../../utils/validators";
+import { sortRows, SortOrder } from "../../utils/sort";
 
 type TeacherDraft = {
   teacherName: string;
@@ -44,6 +45,9 @@ export class TeachersComponent implements OnInit {
   loading = true;
   error = "";
   search = "";
+
+  sortKey = "";
+  sortDir: SortOrder = "asc";
 
   subjectOptions: LabelValue[] = [];
   showAllSubjects = false;
@@ -119,13 +123,45 @@ export class TeachersComponent implements OnInit {
 
   get filtered(): Teacher[] {
     const q = this.search.trim().toLowerCase();
-    if (!q) return this.teachers;
-    return this.teachers.filter(
-      (t) =>
-        t.teacherName?.toLowerCase().includes(q) ||
-        t.subjectNames?.join(", ").toLowerCase().includes(q) ||
-        String(t.teacherId).includes(q),
+    return this.sortRows(
+      q
+        ? this.teachers.filter(
+            (t) =>
+              t.teacherName?.toLowerCase().includes(q) ||
+              t.subjectNames?.join(", ").toLowerCase().includes(q) ||
+              String(t.teacherId).includes(q),
+          )
+        : this.teachers,
     );
+  }
+
+  toggleSort(key: string): void {
+    if (this.sortKey === key) {
+      this.sortDir = this.sortDir === "asc" ? "desc" : "asc";
+    } else {
+      this.sortKey = key;
+      this.sortDir = "asc";
+    }
+  }
+
+  private sortValue(t: Teacher): unknown {
+    switch (this.sortKey) {
+      case "teacherId":
+        return t.teacherId;
+      case "teacherName":
+        return t.teacherName;
+      case "gender":
+        return t.gender;
+      case "salary":
+        return t.salary;
+      default:
+        return undefined;
+    }
+  }
+
+  private sortRows(rows: Teacher[]): Teacher[] {
+    if (!this.sortKey) return rows;
+    return sortRows(rows, (t) => this.sortValue(t), this.sortDir);
   }
 
   openCreate(): void {

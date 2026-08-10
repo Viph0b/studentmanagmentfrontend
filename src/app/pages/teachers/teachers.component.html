@@ -148,12 +148,40 @@
   <table class="data-table">
     <thead>
       <tr>
-        <th>Teacher ID</th>
-        <th>Name</th>
-        <th>Gender</th>
+        <th
+          class="sortable"
+          [class.sort-asc]="sortKey === 'teacherId' && sortDir === 'asc'"
+          [class.sort-desc]="sortKey === 'teacherId' && sortDir === 'desc'"
+          (click)="toggleSort('teacherId')"
+        >
+          Teacher ID
+        </th>
+        <th
+          class="sortable"
+          [class.sort-asc]="sortKey === 'teacherName' && sortDir === 'asc'"
+          [class.sort-desc]="sortKey === 'teacherName' && sortDir === 'desc'"
+          (click)="toggleSort('teacherName')"
+        >
+          Name
+        </th>
+        <th
+          class="sortable"
+          [class.sort-asc]="sortKey === 'gender' && sortDir === 'asc'"
+          [class.sort-desc]="sortKey === 'gender' && sortDir === 'desc'"
+          (click)="toggleSort('gender')"
+        >
+          Gender
+        </th>
         <th>Subjects</th>
         <th>Phone</th>
-        <th>Salary</th>
+        <th
+          class="sortable"
+          [class.sort-asc]="sortKey === 'salary' && sortDir === 'asc'"
+          [class.sort-desc]="sortKey === 'salary' && sortDir === 'desc'"
+          (click)="toggleSort('salary')"
+        >
+          Salary
+        </th>
         <th></th>
       </tr>
     </thead>

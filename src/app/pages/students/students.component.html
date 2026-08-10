@@ -136,11 +136,46 @@
   <table class="data-table">
     <thead>
       <tr>
-        <th>Student ID</th>
-        <th>Name</th>
-        <th>Gender</th>
-        <th>Group</th>
-        <th>Major</th>
+        <th
+          class="sortable"
+          [class.sort-asc]="sortKey === 'studentId' && sortDir === 'asc'"
+          [class.sort-desc]="sortKey === 'studentId' && sortDir === 'desc'"
+          (click)="toggleSort('studentId')"
+        >
+          Student ID
+        </th>
+        <th
+          class="sortable"
+          [class.sort-asc]="sortKey === 'studentName' && sortDir === 'asc'"
+          [class.sort-desc]="sortKey === 'studentName' && sortDir === 'desc'"
+          (click)="toggleSort('studentName')"
+        >
+          Name
+        </th>
+        <th
+          class="sortable"
+          [class.sort-asc]="sortKey === 'gender' && sortDir === 'asc'"
+          [class.sort-desc]="sortKey === 'gender' && sortDir === 'desc'"
+          (click)="toggleSort('gender')"
+        >
+          Gender
+        </th>
+        <th
+          class="sortable"
+          [class.sort-asc]="sortKey === 'groupName' && sortDir === 'asc'"
+          [class.sort-desc]="sortKey === 'groupName' && sortDir === 'desc'"
+          (click)="toggleSort('groupName')"
+        >
+          Group
+        </th>
+        <th
+          class="sortable"
+          [class.sort-asc]="sortKey === 'majorName' && sortDir === 'asc'"
+          [class.sort-desc]="sortKey === 'majorName' && sortDir === 'desc'"
+          (click)="toggleSort('majorName')"
+        >
+          Major
+        </th>
         <th>Phone</th>
         <th>Email</th>
         <th></th>

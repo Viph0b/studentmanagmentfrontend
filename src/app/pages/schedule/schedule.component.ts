@@ -15,6 +15,7 @@ import { Teacher } from '../../models/teacher.model';
 import { Major } from '../../models/major.model';
 import { Group } from '../../models/group.model';
 import { isAcademicYear, isTimeRange } from '../../utils/validators';
+import { sortRows, SortOrder, DAY_ORDER, SHIFT_ORDER } from '../../utils/sort';
 
 type ScheduleDraft = {
   groupId: number;
@@ -58,6 +59,9 @@ export class ScheduleComponent implements OnInit {
   loading = true;
   error = '';
   search = '';
+
+  sortKey = '';
+  sortDir: SortOrder = 'asc';
 
   majors: Major[] = [];
   groups: Group[] = [];
@@ -165,14 +169,60 @@ formError = '';
 
   get filtered(): ClassSchedule[] {
     const q = this.search.trim().toLowerCase();
-    if (!q) return this.schedules;
-    return this.schedules.filter(
-      (s) =>
-        s.groupName?.toLowerCase().includes(q) ||
-        s.subjectName?.toLowerCase().includes(q) ||
-        s.teacherName?.toLowerCase().includes(q) ||
-        s.room?.toLowerCase().includes(q)
+    return this.sortRows(
+      q
+        ? this.schedules.filter(
+            (s) =>
+              s.groupName?.toLowerCase().includes(q) ||
+              s.subjectName?.toLowerCase().includes(q) ||
+              s.teacherName?.toLowerCase().includes(q) ||
+              s.room?.toLowerCase().includes(q),
+          )
+        : this.schedules,
     );
+  }
+
+  toggleSort(key: string): void {
+    if (this.sortKey === key) {
+      this.sortDir = this.sortDir === 'asc' ? 'desc' : 'asc';
+    } else {
+      this.sortKey = key;
+      this.sortDir = 'asc';
+    }
+  }
+
+  private sortValue(s: ClassSchedule): unknown {
+    switch (this.sortKey) {
+      case 'scheduleId':
+        return s.scheduleId;
+      case 'groupName':
+        return s.groupName;
+      case 'majorName':
+        return s.majorName;
+      case 'subjectName':
+        return s.subjectName;
+      case 'teacherName':
+        return s.teacherName;
+      case 'dayOfWeek':
+        return s.dayOfWeek;
+      case 'room':
+        return s.room;
+      case 'shift':
+        return s.shift;
+      default:
+        return undefined;
+    }
+  }
+
+  private sortRows(rows: ClassSchedule[]): ClassSchedule[] {
+    if (!this.sortKey) return rows;
+    const orderList =
+      this.sortKey === 'dayOfWeek'
+        ? DAY_ORDER
+        : this.sortKey === 'shift'
+          ? SHIFT_ORDER
+          : undefined;
+    return sortRows(rows, (s) => this.sortValue(s), this.sortDir, orderList);
   }
 
   openCreate(): void {

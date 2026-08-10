@@ -166,15 +166,71 @@
   <table class="data-table">
     <thead>
       <tr>
-        <th>Schedule ID</th>
-        <th>Group</th>
-        <th>Major</th>
-        <th>Subject</th>
-        <th>Teacher</th>
-        <th>Day</th>
+        <th
+          class="sortable"
+          [class.sort-asc]="sortKey === 'scheduleId' && sortDir === 'asc'"
+          [class.sort-desc]="sortKey === 'scheduleId' && sortDir === 'desc'"
+          (click)="toggleSort('scheduleId')"
+        >
+          Schedule ID
+        </th>
+        <th
+          class="sortable"
+          [class.sort-asc]="sortKey === 'groupName' && sortDir === 'asc'"
+          [class.sort-desc]="sortKey === 'groupName' && sortDir === 'desc'"
+          (click)="toggleSort('groupName')"
+        >
+          Group
+        </th>
+        <th
+          class="sortable"
+          [class.sort-asc]="sortKey === 'majorName' && sortDir === 'asc'"
+          [class.sort-desc]="sortKey === 'majorName' && sortDir === 'desc'"
+          (click)="toggleSort('majorName')"
+        >
+          Major
+        </th>
+        <th
+          class="sortable"
+          [class.sort-asc]="sortKey === 'subjectName' && sortDir === 'asc'"
+          [class.sort-desc]="sortKey === 'subjectName' && sortDir === 'desc'"
+          (click)="toggleSort('subjectName')"
+        >
+          Subject
+        </th>
+        <th
+          class="sortable"
+          [class.sort-asc]="sortKey === 'teacherName' && sortDir === 'asc'"
+          [class.sort-desc]="sortKey === 'teacherName' && sortDir === 'desc'"
+          (click)="toggleSort('teacherName')"
+        >
+          Teacher
+        </th>
+        <th
+          class="sortable"
+          [class.sort-asc]="sortKey === 'dayOfWeek' && sortDir === 'asc'"
+          [class.sort-desc]="sortKey === 'dayOfWeek' && sortDir === 'desc'"
+          (click)="toggleSort('dayOfWeek')"
+        >
+          Day
+        </th>
         <th>Time</th>
-        <th>Room</th>
-        <th>Shift</th>
+        <th
+          class="sortable"
+          [class.sort-asc]="sortKey === 'room' && sortDir === 'asc'"
+          [class.sort-desc]="sortKey === 'room' && sortDir === 'desc'"
+          (click)="toggleSort('room')"
+        >
+          Room
+        </th>
+        <th
+          class="sortable"
+          [class.sort-asc]="sortKey === 'shift' && sortDir === 'asc'"
+          [class.sort-desc]="sortKey === 'shift' && sortDir === 'desc'"
+          (click)="toggleSort('shift')"
+        >
+          Shift
+        </th>
         <th></th>
       </tr>
     </thead>

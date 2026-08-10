@@ -11,6 +11,7 @@ import { StudentFeePayment } from "../../models/fee-payment.model";
 import { Student } from "../../models/student.model";
 import { Major } from "../../models/major.model";
 import { isMoneyMin, isRealDate } from "../../utils/validators";
+import { sortRows, SortOrder } from "../../utils/sort";
 
 type PaymentDraft = {
   studentId: number;
@@ -42,6 +43,9 @@ export class PaymentsComponent implements OnInit {
   loading = true;
   error = "";
   search = "";
+
+  sortKey = "";
+  sortDir: SortOrder = "asc";
 
   showForm = false;
   editingId: number | null = null;
@@ -113,13 +117,47 @@ formError = "";
 
   get filtered(): StudentFeePayment[] {
     const q = this.search.trim().toLowerCase();
-    if (!q) return this.payments;
-    return this.payments.filter(
-      (p) =>
-        this.studentName(p.studentId).toLowerCase().includes(q) ||
-        String(p.studentId).includes(q) ||
-        p.paymentMethod?.toLowerCase().includes(q),
+    return this.sortRows(
+      q
+        ? this.payments.filter(
+            (p) =>
+              this.studentName(p.studentId).toLowerCase().includes(q) ||
+              String(p.studentId).includes(q) ||
+              p.paymentMethod?.toLowerCase().includes(q),
+          )
+        : this.payments,
     );
+  }
+
+  toggleSort(key: string): void {
+    if (this.sortKey === key) {
+      this.sortDir = this.sortDir === "asc" ? "desc" : "asc";
+    } else {
+      this.sortKey = key;
+      this.sortDir = "asc";
+    }
+  }
+
+  private sortValue(p: StudentFeePayment): unknown {
+    switch (this.sortKey) {
+      case "paymentId":
+        return p.paymentId;
+      case "student":
+        return p.studentName || this.studentName(p.studentId);
+      case "semester":
+        return p.semester;
+      case "amountPaid":
+        return p.amountPaid;
+      case "paymentMethod":
+        return p.paymentMethod;
+      default:
+        return undefined;
+    }
+  }
+
+  private sortRows(rows: StudentFeePayment[]): StudentFeePayment[] {
+    if (!this.sortKey) return rows;
+    return sortRows(rows, (p) => this.sortValue(p), this.sortDir);
   }
 
   openCreate(): void {

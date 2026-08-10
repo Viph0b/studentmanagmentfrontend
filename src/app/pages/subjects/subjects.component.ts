@@ -6,6 +6,7 @@ import { SubjectService } from '../../services/subject.service';
 import { ToastService } from '../../services/toast.service';
 import { ConfirmService } from '../../services/confirm.service';
 import { Subject } from '../../models/subject.model';
+import { sortRows, SortOrder } from '../../utils/sort';
 
 type SubjectDraft = {
   subjectName: string;
@@ -26,6 +27,9 @@ export class SubjectsComponent implements OnInit {
   loading = true;
   error = '';
   search = '';
+
+  sortKey = '';
+  sortDir: SortOrder = 'asc';
 
   showForm = false;
   editingId: number | null = null;
@@ -60,11 +64,39 @@ export class SubjectsComponent implements OnInit {
 
   get filtered(): Subject[] {
     const q = this.search.trim().toLowerCase();
-    if (!q) return this.subjects;
-    return this.subjects.filter(
-      (s) =>
-        s.subjectName?.toLowerCase().includes(q) || String(s.subjectId).includes(q)
+    return this.sortRows(
+      q
+        ? this.subjects.filter(
+            (s) =>
+              s.subjectName?.toLowerCase().includes(q) || String(s.subjectId).includes(q),
+          )
+        : this.subjects,
     );
+  }
+
+  toggleSort(key: string): void {
+    if (this.sortKey === key) {
+      this.sortDir = this.sortDir === 'asc' ? 'desc' : 'asc';
+    } else {
+      this.sortKey = key;
+      this.sortDir = 'asc';
+    }
+  }
+
+  private sortValue(s: Subject): unknown {
+    switch (this.sortKey) {
+      case 'subjectId':
+        return s.subjectId;
+      case 'subjectName':
+        return s.subjectName;
+      default:
+        return undefined;
+    }
+  }
+
+  private sortRows(rows: Subject[]): Subject[] {
+    if (!this.sortKey) return rows;
+    return sortRows(rows, (s) => this.sortValue(s), this.sortDir);
   }
 
   openCreate(): void {

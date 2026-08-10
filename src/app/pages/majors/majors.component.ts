@@ -9,6 +9,7 @@ import { ConfirmService } from "../../services/confirm.service";
 import { Major } from "../../models/major.model";
 import { LabelValue } from "../../models/label-value.model";
 import { isMoneyMin } from "../../utils/validators";
+import { sortRows, SortOrder } from "../../utils/sort";
 
 type MajorDraft = {
   majorName: string;
@@ -33,6 +34,9 @@ export class MajorsComponent implements OnInit {
   loading = true;
   error = "";
   search = "";
+
+  sortKey = "";
+  sortDir: SortOrder = "asc";
 
   showForm = false;
   editingId: number | null = null;
@@ -101,11 +105,41 @@ formError = "";
 
   get filtered(): Major[] {
     const q = this.search.trim().toLowerCase();
-    if (!q) return this.majors;
-    return this.majors.filter(
-      (m) =>
-        m.majorName?.toLowerCase().includes(q) || String(m.majorId).includes(q),
+    return this.sortRows(
+      q
+        ? this.majors.filter(
+            (m) =>
+              m.majorName?.toLowerCase().includes(q) || String(m.majorId).includes(q),
+          )
+        : this.majors,
     );
+  }
+
+  toggleSort(key: string): void {
+    if (this.sortKey === key) {
+      this.sortDir = this.sortDir === "asc" ? "desc" : "asc";
+    } else {
+      this.sortKey = key;
+      this.sortDir = "asc";
+    }
+  }
+
+  private sortValue(m: Major): unknown {
+    switch (this.sortKey) {
+      case "majorId":
+        return m.majorId;
+      case "majorName":
+        return m.majorName;
+      case "pricePerSemester":
+        return m.pricePerSemester;
+      default:
+        return undefined;
+    }
+  }
+
+  private sortRows(rows: Major[]): Major[] {
+    if (!this.sortKey) return rows;
+    return sortRows(rows, (m) => this.sortValue(m), this.sortDir);
   }
 
   openCreate(): void {

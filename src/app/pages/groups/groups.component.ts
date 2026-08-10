@@ -9,6 +9,7 @@ import { ConfirmService } from '../../services/confirm.service';
 import { Group } from '../../models/group.model';
 import { LabelValue } from '../../models/label-value.model';
 import { isAcademicYear } from '../../utils/validators';
+import { sortRows, SortOrder, SHIFT_ORDER } from '../../utils/sort';
 
 type GroupDraft = {
   groupName: string;
@@ -39,6 +40,9 @@ export class GroupsComponent implements OnInit {
   loading = true;
   error = '';
   search = '';
+
+  sortKey = '';
+  sortDir: SortOrder = 'asc';
 
   majorOptions: LabelValue[] = [];
   semesterOptions = [1, 2, 3, 4, 5, 6, 7, 8];
@@ -87,13 +91,54 @@ formError = '';
 
   get filtered(): Group[] {
     const q = this.search.trim().toLowerCase();
-    if (!q) return this.groups;
-    return this.groups.filter(
-      (g) =>
-        g.groupName?.toLowerCase().includes(q) ||
-        g.majorName?.toLowerCase().includes(q) ||
-        g.status?.toLowerCase().includes(q)
+    return this.sortRows(
+      q
+        ? this.groups.filter(
+            (g) =>
+              g.groupName?.toLowerCase().includes(q) ||
+              g.majorName?.toLowerCase().includes(q) ||
+              g.status?.toLowerCase().includes(q),
+          )
+        : this.groups,
     );
+  }
+
+  toggleSort(key: string): void {
+    if (this.sortKey === key) {
+      this.sortDir = this.sortDir === 'asc' ? 'desc' : 'asc';
+    } else {
+      this.sortKey = key;
+      this.sortDir = 'asc';
+    }
+  }
+
+  private sortValue(g: Group): unknown {
+    switch (this.sortKey) {
+      case 'groupId':
+        return g.groupId;
+      case 'groupName':
+        return g.groupName;
+      case 'majorName':
+        return g.majorName;
+      case 'studentCount':
+        return g.studentCount ?? 0;
+      case 'currentSemester':
+        return g.currentSemester;
+      case 'academicYear':
+        return g.academicYear;
+      case 'shift':
+        return g.shift;
+      case 'status':
+        return g.status;
+      default:
+        return undefined;
+    }
+  }
+
+  private sortRows(rows: Group[]): Group[] {
+    if (!this.sortKey) return rows;
+    const orderList = this.sortKey === 'shift' ? SHIFT_ORDER : undefined;
+    return sortRows(rows, (g) => this.sortValue(g), this.sortDir, orderList);
   }
 
   openCreate(): void {

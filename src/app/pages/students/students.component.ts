@@ -16,6 +16,7 @@ import {
   isPhone,
   isRealDate,
 } from "../../utils/validators";
+import { sortRows, SortOrder } from "../../utils/sort";
 
 type StudentDraft = {
   studentName: string;
@@ -52,6 +53,9 @@ export class StudentsComponent implements OnInit {
   groups: Group[] = [];
 
   search = "";
+
+  sortKey = "";
+  sortDir: SortOrder = "asc";
 
   showForm = false;
   editingId: number | null = null;
@@ -121,15 +125,49 @@ export class StudentsComponent implements OnInit {
 
   get filtered(): Student[] {
     const q = this.search.trim().toLowerCase();
-    if (!q) return this.students;
-    return this.students.filter(
-      (s) =>
-        s.studentName?.toLowerCase().includes(q) ||
-        s.email?.toLowerCase().includes(q) ||
-        s.majorName?.toLowerCase().includes(q) ||
-        s.groupName?.toLowerCase().includes(q) ||
-        String(s.studentId).includes(q),
+    return this.sortRows(
+      q
+        ? this.students.filter(
+            (s) =>
+              s.studentName?.toLowerCase().includes(q) ||
+              s.email?.toLowerCase().includes(q) ||
+              s.majorName?.toLowerCase().includes(q) ||
+              s.groupName?.toLowerCase().includes(q) ||
+              String(s.studentId).includes(q),
+          )
+        : this.students,
     );
+  }
+
+  toggleSort(key: string): void {
+    if (this.sortKey === key) {
+      this.sortDir = this.sortDir === "asc" ? "desc" : "asc";
+    } else {
+      this.sortKey = key;
+      this.sortDir = "asc";
+    }
+  }
+
+  private sortValue(s: Student): unknown {
+    switch (this.sortKey) {
+      case "studentId":
+        return s.studentId;
+      case "studentName":
+        return s.studentName;
+      case "gender":
+        return s.gender;
+      case "majorName":
+        return s.majorName;
+      case "groupName":
+        return s.groupName;
+      default:
+        return undefined;
+    }
+  }
+
+  private sortRows(rows: Student[]): Student[] {
+    if (!this.sortKey) return rows;
+    return sortRows(rows, (s) => this.sortValue(s), this.sortDir);
   }
 
   openCreate(): void {
