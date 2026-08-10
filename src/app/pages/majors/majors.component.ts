@@ -8,6 +8,7 @@ import { ToastService } from "../../services/toast.service";
 import { ConfirmService } from "../../services/confirm.service";
 import { Major } from "../../models/major.model";
 import { LabelValue } from "../../models/label-value.model";
+import { isMoneyMin } from "../../utils/validators";
 
 type MajorDraft = {
   majorName: string;
@@ -37,7 +38,8 @@ export class MajorsComponent implements OnInit {
   editingId: number | null = null;
   draft: MajorDraft = { ...BLANK };
   saving = false;
-  formError = "";
+formError = "";
+  priceError = "";
 
   subjectOptions: LabelValue[] = [];
   showAllSubjects = false;
@@ -110,6 +112,7 @@ export class MajorsComponent implements OnInit {
     this.editingId = null;
     this.draft = { ...BLANK };
     this.formError = "";
+    this.priceError = "";
     this.showAllSubjects = false;
     this.showForm = true;
   }
@@ -122,6 +125,7 @@ export class MajorsComponent implements OnInit {
       subjectIds: m.subjectIds ?? [],
     };
     this.formError = "";
+    this.priceError = "";
     this.showAllSubjects = false;
     this.showForm = true;
   }
@@ -129,11 +133,17 @@ export class MajorsComponent implements OnInit {
   cancelForm(): void {
     this.showForm = false;
     this.formError = "";
+    this.priceError = "";
   }
 
   save(): void {
     if (!this.draft.majorName.trim()) {
       this.formError = "Major name is required.";
+      return;
+    }
+    const price = Number(this.draft.pricePerSemester);
+    if (!isMoneyMin(price, 1)) {
+      this.priceError = "Price per semester must be greater than 0.";
       return;
     }
     this.saving = true;

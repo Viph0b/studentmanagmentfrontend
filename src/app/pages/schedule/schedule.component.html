@@ -79,16 +79,19 @@
           name="startTime"
           type="time"
           [(ngModel)]="draft.startTime"
+          (ngModelChange)="timeError = ''"
         />
       </div>
-      <div class="field">
+      <div class="field" [ngClass]="{ 'has-error': timeError }">
         <label for="endTime">End time</label>
         <input
           id="endTime"
           name="endTime"
           type="time"
           [(ngModel)]="draft.endTime"
+          (ngModelChange)="timeError = ''"
         />
+        <span class="field-error" *ngIf="timeError">{{ timeError }}</span>
       </div>
       <div class="field">
         <label for="room">Room</label>
@@ -108,14 +111,16 @@
           </option>
         </select>
       </div>
-      <div class="field">
+      <div class="field" [ngClass]="{ 'has-error': yearError }">
         <label for="academicYear">Academic year</label>
         <input
           id="academicYear"
           name="academicYear"
           type="text"
           [(ngModel)]="draft.academicYear"
+          (ngModelChange)="yearError = ''"
         />
+        <span class="field-error" *ngIf="yearError">{{ yearError }}</span>
       </div>
     </div>
 

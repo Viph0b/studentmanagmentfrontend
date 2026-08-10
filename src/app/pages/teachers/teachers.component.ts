@@ -8,6 +8,12 @@ import { ToastService } from "../../services/toast.service";
 import { ConfirmService } from "../../services/confirm.service";
 import { Teacher } from "../../models/teacher.model";
 import { LabelValue } from "../../models/label-value.model";
+import {
+  isMoneyMin,
+  isNotFuture,
+  isPhone,
+  isRealDate,
+} from "../../utils/validators";
 
 type TeacherDraft = {
   teacherName: string;
@@ -56,6 +62,8 @@ export class TeachersComponent implements OnInit {
   formError = "";
   phoneError = "";
   subjectError = "";
+  dobError = "";
+  salaryError = "";
 
   constructor(
     private teacherSvc: TeacherService,
@@ -126,6 +134,8 @@ export class TeachersComponent implements OnInit {
     this.formError = "";
     this.phoneError = "";
     this.subjectError = "";
+    this.dobError = "";
+    this.salaryError = "";
     this.showAllSubjects = false;
     this.showForm = true;
   }
@@ -143,6 +153,8 @@ export class TeachersComponent implements OnInit {
     this.formError = "";
     this.phoneError = "";
     this.subjectError = "";
+    this.dobError = "";
+    this.salaryError = "";
     this.showAllSubjects = false;
     this.showForm = true;
   }
@@ -152,6 +164,8 @@ export class TeachersComponent implements OnInit {
     this.formError = "";
     this.phoneError = "";
     this.subjectError = "";
+    this.dobError = "";
+    this.salaryError = "";
   }
 
   save(): void {
@@ -161,17 +175,30 @@ export class TeachersComponent implements OnInit {
     }
     this.phoneError = "";
     this.subjectError = "";
+    this.dobError = "";
+    this.salaryError = "";
     if (this.draft.subjectIds.length === 0) {
       this.subjectError = "Select at least one subject.";
       return;
     }
+    const dob = this.draft.dateOfBirth;
+    if (!isRealDate(dob)) {
+      this.dobError = "Enter a valid date of birth.";
+      return;
+    }
+    if (!isNotFuture(dob)) {
+      this.dobError = "Date of birth cannot be in the future.";
+      return;
+    }
+    const salary = Number(this.draft.salary);
+    if (!isMoneyMin(salary, 0)) {
+      this.salaryError = "Salary cannot be negative.";
+      return;
+    }
     const phone = this.draft.phoneNumber.trim();
-    if (phone) {
-      const digits = phone.replace(/[\s().-]/g, "");
-      if (!/^\+?\d{8,15}$/.test(digits)) {
-        this.phoneError = "Enter a valid phone number (8–15 digits).";
-        return;
-      }
+    if (phone && !isPhone(phone)) {
+      this.phoneError = "Enter a valid phone number (8–15 digits).";
+      return;
     }
     this.saving = true;
     this.formError = "";

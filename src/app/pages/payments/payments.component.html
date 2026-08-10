@@ -48,7 +48,7 @@
           </option>
         </select>
       </div>
-      <div class="field">
+      <div class="field" [ngClass]="{ 'has-error': amountError }">
         <label for="amountPaid">Amount paid ($)</label>
         <input
           id="amountPaid"
@@ -56,16 +56,20 @@
           type="number"
           min="0"
           [(ngModel)]="draft.amountPaid"
+          (ngModelChange)="amountError = ''"
         />
+        <span class="field-error" *ngIf="amountError">{{ amountError }}</span>
       </div>
-      <div class="field">
+      <div class="field" [ngClass]="{ 'has-error': dateError }">
         <label for="paymentDate">Payment date</label>
         <input
           id="paymentDate"
           name="paymentDate"
           type="date"
           [(ngModel)]="draft.paymentDate"
+          (ngModelChange)="dateError = ''"
         />
+        <span class="field-error" *ngIf="dateError">{{ dateError }}</span>
       </div>
       <div class="field">
         <label for="paymentMethod">Payment method</label>

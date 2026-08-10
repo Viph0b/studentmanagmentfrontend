@@ -14,6 +14,7 @@ import { LabelValue } from '../../models/label-value.model';
 import { Teacher } from '../../models/teacher.model';
 import { Major } from '../../models/major.model';
 import { Group } from '../../models/group.model';
+import { isAcademicYear, isTimeRange } from '../../utils/validators';
 
 type ScheduleDraft = {
   groupId: number;
@@ -68,7 +69,9 @@ export class ScheduleComponent implements OnInit {
   editingId: number | null = null;
   draft: ScheduleDraft = { ...BLANK };
   saving = false;
-  formError = '';
+formError = '';
+  timeError = '';
+  yearError = '';
 
   constructor(
     private scheduleSvc: ClassScheduleService,
@@ -176,6 +179,8 @@ export class ScheduleComponent implements OnInit {
     this.editingId = null;
     this.draft = { ...BLANK };
     this.formError = '';
+    this.timeError = '';
+    this.yearError = '';
     this.showForm = true;
   }
 
@@ -195,12 +200,16 @@ export class ScheduleComponent implements OnInit {
       shift: s.shift,
     };
     this.formError = '';
+    this.timeError = '';
+    this.yearError = '';
     this.showForm = true;
   }
 
   cancelForm(): void {
     this.showForm = false;
     this.formError = '';
+    this.timeError = '';
+    this.yearError = '';
   }
 
   save(): void {
@@ -210,6 +219,16 @@ export class ScheduleComponent implements OnInit {
     }
     if (!this.draft.teacherId) {
       this.formError = 'Teacher is required.';
+      return;
+    }
+    this.timeError = '';
+    this.yearError = '';
+    if (!isTimeRange(this.draft.startTime, this.draft.endTime)) {
+      this.timeError = 'End time must be after start time.';
+      return;
+    }
+    if (!isAcademicYear(this.draft.academicYear)) {
+      this.yearError = 'Enter an academic year like 2025-2026.';
       return;
     }
     this.saving = true;

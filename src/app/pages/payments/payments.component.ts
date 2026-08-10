@@ -10,6 +10,7 @@ import { ConfirmService } from "../../services/confirm.service";
 import { StudentFeePayment } from "../../models/fee-payment.model";
 import { Student } from "../../models/student.model";
 import { Major } from "../../models/major.model";
+import { isMoneyMin, isRealDate } from "../../utils/validators";
 
 type PaymentDraft = {
   studentId: number;
@@ -46,7 +47,9 @@ export class PaymentsComponent implements OnInit {
   editingId: number | null = null;
   draft: PaymentDraft = { ...BLANK };
   saving = false;
-  formError = "";
+formError = "";
+  amountError = "";
+  dateError = "";
 
   constructor(
     private paymentSvc: FeePaymentService,
@@ -126,6 +129,8 @@ export class PaymentsComponent implements OnInit {
       paymentDate: new Date().toISOString().substring(0, 10),
     };
     this.formError = "";
+    this.amountError = "";
+    this.dateError = "";
     this.showForm = true;
   }
 
@@ -139,17 +144,32 @@ export class PaymentsComponent implements OnInit {
       paymentMethod: p.paymentMethod,
     };
     this.formError = "";
+    this.amountError = "";
+    this.dateError = "";
     this.showForm = true;
   }
 
   cancelForm(): void {
     this.showForm = false;
     this.formError = "";
+    this.amountError = "";
+    this.dateError = "";
   }
 
   save(): void {
     if (!this.draft.studentId) {
       this.formError = "Please select a student.";
+      return;
+    }
+    this.amountError = "";
+    this.dateError = "";
+    const amount = Number(this.draft.amountPaid);
+    if (!isMoneyMin(amount, 1)) {
+      this.amountError = "Amount paid must be greater than 0.";
+      return;
+    }
+    if (!isRealDate(this.draft.paymentDate)) {
+      this.dateError = "Enter a valid payment date.";
       return;
     }
     this.saving = true;

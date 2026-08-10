@@ -10,6 +10,12 @@ import { ConfirmService } from "../../services/confirm.service";
 import { Student } from "../../models/student.model";
 import { LabelValue } from "../../models/label-value.model";
 import { Group } from "../../models/group.model";
+import {
+  isEmail,
+  isNotFuture,
+  isPhone,
+  isRealDate,
+} from "../../utils/validators";
 
 type StudentDraft = {
   studentName: string;
@@ -54,6 +60,7 @@ export class StudentsComponent implements OnInit {
   formError = "";
   emailError = "";
   phoneError = "";
+  dobError = "";
 
   constructor(
     private studentSvc: StudentService,
@@ -131,6 +138,7 @@ export class StudentsComponent implements OnInit {
     this.formError = "";
     this.emailError = "";
     this.phoneError = "";
+    this.dobError = "";
     this.showForm = true;
   }
 
@@ -148,6 +156,7 @@ export class StudentsComponent implements OnInit {
     this.formError = "";
     this.emailError = "";
     this.phoneError = "";
+    this.dobError = "";
     this.showForm = true;
   }
 
@@ -156,6 +165,7 @@ export class StudentsComponent implements OnInit {
     this.formError = "";
     this.emailError = "";
     this.phoneError = "";
+    this.dobError = "";
   }
 
   save(): void {
@@ -166,18 +176,31 @@ export class StudentsComponent implements OnInit {
 
     this.emailError = "";
     this.phoneError = "";
+    this.dobError = "";
+
+    const dob = this.draft.dateOfBirth;
+    if (!isRealDate(dob)) {
+      this.dobError = "Enter a valid date of birth.";
+      return;
+    }
+    if (!isNotFuture(dob)) {
+      this.dobError = "Date of birth cannot be in the future.";
+      return;
+    }
+    if (!Number(this.draft.groupId)) {
+      this.formError = "Select a group.";
+      return;
+    }
+
     const email = this.draft.email.trim();
     const phone = this.draft.phoneNumber.trim();
-    if (email && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+    if (email && !isEmail(email)) {
       this.emailError = "Enter a valid email (e.g. name@example.com).";
       return;
     }
-    if (phone) {
-      const digits = phone.replace(/[\s().-]/g, "");
-      if (!/^\+?\d{8,15}$/.test(digits)) {
-        this.phoneError = "Enter a valid phone number (8–15 digits).";
-        return;
-      }
+    if (phone && !isPhone(phone)) {
+      this.phoneError = "Enter a valid phone number (8–15 digits).";
+      return;
     }
     this.saving = true;
     this.formError = "";

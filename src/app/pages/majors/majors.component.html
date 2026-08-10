@@ -28,7 +28,7 @@
           required
         />
       </div>
-      <div class="field span-2">
+      <div class="field span-2" [ngClass]="{ 'has-error': priceError }">
         <label for="pricePerSemester">Price per semester ($)</label>
         <input
           id="pricePerSemester"
@@ -36,7 +36,9 @@
           type="number"
           min="0"
           [(ngModel)]="draft.pricePerSemester"
+          (ngModelChange)="priceError = ''"
         />
+        <span class="field-error" *ngIf="priceError">{{ priceError }}</span>
       </div>
       <div class="field span-2">
         <label>Subjects</label>

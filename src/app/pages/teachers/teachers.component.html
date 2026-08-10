@@ -38,14 +38,16 @@
           <option value="Female">Female</option>
         </select>
       </div>
-      <div class="field">
+      <div class="field" [ngClass]="{ 'has-error': dobError }">
         <label for="dateOfBirth">Date of birth</label>
         <input
           id="dateOfBirth"
           name="dateOfBirth"
           type="date"
           [(ngModel)]="draft.dateOfBirth"
+          (ngModelChange)="dobError = ''"
         />
+        <span class="field-error" *ngIf="dobError">{{ dobError }}</span>
       </div>
       <div class="field" [ngClass]="{ 'has-error': phoneError }">
         <label for="phoneNumber">Phone number</label>
@@ -58,7 +60,7 @@
         />
         <span class="field-error" *ngIf="phoneError">{{ phoneError }}</span>
       </div>
-      <div class="field">
+      <div class="field" [ngClass]="{ 'has-error': salaryError }">
         <label for="salary">Monthly salary ($)</label>
         <input
           id="salary"
@@ -66,7 +68,9 @@
           type="number"
           min="0"
           [(ngModel)]="draft.salary"
+          (ngModelChange)="salaryError = ''"
         />
+        <span class="field-error" *ngIf="salaryError">{{ salaryError }}</span>
       </div>
       <div class="field span-2" [ngClass]="{ 'has-error': subjectError }">
         <label>Subjects taught</label>

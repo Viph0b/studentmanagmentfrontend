@@ -39,14 +39,16 @@
           <option value="Female">Female</option>
         </select>
       </div>
-      <div class="field">
+      <div class="field" [ngClass]="{ 'has-error': dobError }">
         <label for="dateOfBirth">Date of birth</label>
         <input
           id="dateOfBirth"
           name="dateOfBirth"
           type="date"
           [(ngModel)]="draft.dateOfBirth"
+          (ngModelChange)="dobError = ''"
         />
+        <span class="field-error" *ngIf="dobError">{{ dobError }}</span>
       </div>
       <div class="field" [ngClass]="{ 'has-error': phoneError }">
         <label for="phoneNumber">Phone number</label>

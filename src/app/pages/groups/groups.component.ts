@@ -8,6 +8,7 @@ import { ToastService } from '../../services/toast.service';
 import { ConfirmService } from '../../services/confirm.service';
 import { Group } from '../../models/group.model';
 import { LabelValue } from '../../models/label-value.model';
+import { isAcademicYear } from '../../utils/validators';
 
 type GroupDraft = {
   groupName: string;
@@ -46,7 +47,9 @@ export class GroupsComponent implements OnInit {
   editingId: number | null = null;
   draft: GroupDraft = { ...BLANK };
   saving = false;
-  formError = '';
+formError = '';
+  majorError = '';
+  yearError = '';
 
   constructor(
     private groupSvc: GroupService,
@@ -97,6 +100,8 @@ export class GroupsComponent implements OnInit {
     this.editingId = null;
     this.draft = { ...BLANK };
     this.formError = '';
+    this.majorError = '';
+    this.yearError = '';
     this.showForm = true;
   }
 
@@ -111,17 +116,31 @@ export class GroupsComponent implements OnInit {
       status: g.status,
     };
     this.formError = '';
+    this.majorError = '';
+    this.yearError = '';
     this.showForm = true;
   }
 
   cancelForm(): void {
     this.showForm = false;
     this.formError = '';
+    this.majorError = '';
+    this.yearError = '';
   }
 
   save(): void {
     if (!this.draft.groupName.trim()) {
       this.formError = 'Group name is required.';
+      return;
+    }
+    this.majorError = '';
+    this.yearError = '';
+    if (!Number(this.draft.majorId)) {
+      this.majorError = 'Select a major.';
+      return;
+    }
+    if (!isAcademicYear(this.draft.academicYear)) {
+      this.yearError = 'Enter an academic year like 2025-2026.';
       return;
     }
     this.saving = true;

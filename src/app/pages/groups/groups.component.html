@@ -29,14 +29,15 @@
           required
         />
       </div>
-      <div class="field">
+      <div class="field" [ngClass]="{ 'has-error': majorError }">
         <label for="major">Major</label>
-        <select id="major" name="major" [(ngModel)]="draft.majorId">
+        <select id="major" name="major" [(ngModel)]="draft.majorId" (ngModelChange)="majorError = ''">
           <option [ngValue]="0" disabled>Select a major</option>
           <option *ngFor="let m of majorOptions" [ngValue]="m.id">
             {{ m.name }}
           </option>
         </select>
+        <span class="field-error" *ngIf="majorError">{{ majorError }}</span>
       </div>
       <div class="field">
         <label for="currentSemester">Current semester</label>
@@ -50,7 +51,7 @@
           </option>
         </select>
       </div>
-      <div class="field">
+      <div class="field" [ngClass]="{ 'has-error': yearError }">
         <label for="academicYear">Academic year</label>
         <input
           id="academicYear"
@@ -58,7 +59,9 @@
           type="text"
           [(ngModel)]="draft.academicYear"
           placeholder="2025-2026"
+          (ngModelChange)="yearError = ''"
         />
+        <span class="field-error" *ngIf="yearError">{{ yearError }}</span>
       </div>
       <div class="field">
         <label for="shift">Shift</label>
