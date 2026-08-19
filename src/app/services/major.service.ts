@@ -5,6 +5,8 @@ import { Observable } from "rxjs";
 import { API_BASE_URL } from "../api-config";
 import { Major } from "../models/major.model";
 import { LabelValue } from "../models/label-value.model";
+import { PagedResult } from "../models/paged-result.model";
+import { ListQuery, toHttpParams } from "../utils/list-query";
 
 @Injectable({ providedIn: "root" })
 export class MajorService {
@@ -12,8 +14,10 @@ export class MajorService {
 
   constructor(private http: HttpClient) {}
 
-  getAll(): Observable<Major[]> {
-    return this.http.get<Major[]>(this.baseUrl);
+  getAll(query: ListQuery = {}): Observable<PagedResult<Major>> {
+    return this.http.get<PagedResult<Major>>(this.baseUrl, {
+      params: toHttpParams(query),
+    });
   }
 
   getOptions(): Observable<LabelValue[]> {

@@ -2,6 +2,7 @@ import { CommonModule } from "@angular/common";
 import { Component, OnInit } from "@angular/core";
 import { FormsModule } from "@angular/forms";
 
+import { PagerComponent } from "../../components/pager/pager.component";
 import { StudentService } from "../../services/student.service";
 import { MajorService } from "../../services/major.service";
 import { GroupService } from "../../services/group.service";
@@ -16,7 +17,7 @@ import {
   isPhone,
   isRealDate,
 } from "../../utils/validators";
-import { sortRows, SortOrder } from "../../utils/sort";
+import { SortOrder } from "../../utils/sort";
 
 type StudentDraft = {
   studentName: string;
@@ -41,7 +42,7 @@ const BLANK: StudentDraft = {
 @Component({
   selector: "app-students",
   standalone: true,
-  imports: [CommonModule, FormsModule],
+  imports: [CommonModule, FormsModule, PagerComponent],
   templateUrl: "./students.component.html",
 })
 export class StudentsComponent implements OnInit {
@@ -57,6 +58,11 @@ export class StudentsComponent implements OnInit {
   sortKey = "";
   sortDir: SortOrder = "asc";
 
+  page = 1;
+  pageSize = 20;
+  total = 0;
+  totalPages = 0;
+
   showForm = false;
   editingId: number | null = null;
   draft: StudentDraft = { ...BLANK };
@@ -65,6 +71,8 @@ export class StudentsComponent implements OnInit {
   emailError = "";
   phoneError = "";
   dobError = "";
+
+  private searchTimer?: ReturnType<typeof setTimeout>;
 
   constructor(
     private studentSvc: StudentService,
@@ -82,17 +90,32 @@ export class StudentsComponent implements OnInit {
   load(): void {
     this.loading = true;
     this.error = "";
-    this.studentSvc.getAll().subscribe({
-      next: (data) => {
-        this.students = data;
-        this.loading = false;
-      },
-      error: () => {
-        this.error =
-          "Could not load students. Confirm the API is running at http://localhost:5073.";
-        this.loading = false;
-      },
-    });
+    this.studentSvc
+      .getAll({
+        search: this.search.trim() || undefined,
+        sortBy: this.sortKey || undefined,
+        sortDir: this.sortDir,
+        page: this.page,
+        pageSize: this.pageSize,
+      })
+      .subscribe({
+        next: (result) => {
+          if (result.totalPages > 0 && result.page > result.totalPages) {
+            this.page = result.totalPages;
+            this.load();
+            return;
+          }
+          this.students = result.items;
+          this.total = result.total;
+          this.totalPages = result.totalPages;
+          this.loading = false;
+        },
+        error: () => {
+          this.error =
+            "Could not load students. Confirm the API is running at http://localhost:5073.";
+          this.loading = false;
+        },
+      });
   }
 
   loadLookups(): void {
@@ -101,8 +124,8 @@ export class StudentsComponent implements OnInit {
       error: () => (this.majorOptions = []),
     });
 
-    this.groupSvc.getAll().subscribe({
-      next: (data) => (this.groups = data),
+    this.groupSvc.getAll({ pageSize: 200 }).subscribe({
+      next: (result) => (this.groups = result.items),
       error: () => (this.groups = []),
     });
   }
@@ -123,20 +146,12 @@ export class StudentsComponent implements OnInit {
     this.draft.groupId = 0;
   }
 
-  get filtered(): Student[] {
-    const q = this.search.trim().toLowerCase();
-    return this.sortRows(
-      q
-        ? this.students.filter(
-            (s) =>
-              s.studentName?.toLowerCase().includes(q) ||
-              s.email?.toLowerCase().includes(q) ||
-              s.majorName?.toLowerCase().includes(q) ||
-              s.groupName?.toLowerCase().includes(q) ||
-              String(s.studentId).includes(q),
-          )
-        : this.students,
-    );
+  onSearch(): void {
+    clearTimeout(this.searchTimer);
+    this.searchTimer = setTimeout(() => {
+      this.page = 1;
+      this.load();
+    }, 300);
   }
 
   toggleSort(key: string): void {
@@ -146,28 +161,21 @@ export class StudentsComponent implements OnInit {
       this.sortKey = key;
       this.sortDir = "asc";
     }
+    this.page = 1;
+    this.load();
   }
 
-  private sortValue(s: Student): unknown {
-    switch (this.sortKey) {
-      case "studentId":
-        return s.studentId;
-      case "studentName":
-        return s.studentName;
-      case "gender":
-        return s.gender;
-      case "majorName":
-        return s.majorName;
-      case "groupName":
-        return s.groupName;
-      default:
-        return undefined;
-    }
+  goToPage(p: number): void {
+    if (p === this.page) return;
+    this.page = p;
+    this.load();
   }
 
-  private sortRows(rows: Student[]): Student[] {
-    if (!this.sortKey) return rows;
-    return sortRows(rows, (s) => this.sortValue(s), this.sortDir);
+  changePageSize(size: number): void {
+    if (size === this.pageSize) return;
+    this.pageSize = size;
+    this.page = 1;
+    this.load();
   }
 
   openCreate(): void {

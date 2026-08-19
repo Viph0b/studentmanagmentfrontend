@@ -2,11 +2,12 @@ import { CommonModule } from '@angular/common';
 import { Component, OnInit } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 
+import { PagerComponent } from '../../components/pager/pager.component';
 import { SubjectService } from '../../services/subject.service';
 import { ToastService } from '../../services/toast.service';
 import { ConfirmService } from '../../services/confirm.service';
 import { Subject } from '../../models/subject.model';
-import { sortRows, SortOrder } from '../../utils/sort';
+import { SortOrder } from '../../utils/sort';
 
 type SubjectDraft = {
   subjectName: string;
@@ -19,7 +20,7 @@ const BLANK: SubjectDraft = {
 @Component({
   selector: 'app-subjects',
   standalone: true,
-  imports: [CommonModule, FormsModule],
+  imports: [CommonModule, FormsModule, PagerComponent],
   templateUrl: './subjects.component.html',
 })
 export class SubjectsComponent implements OnInit {
@@ -31,11 +32,18 @@ export class SubjectsComponent implements OnInit {
   sortKey = '';
   sortDir: SortOrder = 'asc';
 
+  page = 1;
+  pageSize = 20;
+  total = 0;
+  totalPages = 0;
+
   showForm = false;
   editingId: number | null = null;
   draft: SubjectDraft = { ...BLANK };
   saving = false;
   formError = '';
+
+  private searchTimer?: ReturnType<typeof setTimeout>;
 
   constructor(
     private subjectSvc: SubjectService,
@@ -50,28 +58,39 @@ export class SubjectsComponent implements OnInit {
   load(): void {
     this.loading = true;
     this.error = '';
-    this.subjectSvc.getAll().subscribe({
-      next: (data) => {
-        this.subjects = data;
-        this.loading = false;
-      },
-      error: () => {
-        this.error = 'Could not load subjects. Confirm the API is running.';
-        this.loading = false;
-      },
-    });
+    this.subjectSvc
+      .getAll({
+        search: this.search.trim() || undefined,
+        sortBy: this.sortKey || undefined,
+        sortDir: this.sortDir,
+        page: this.page,
+        pageSize: this.pageSize,
+      })
+      .subscribe({
+        next: (result) => {
+          if (result.totalPages > 0 && result.page > result.totalPages) {
+            this.page = result.totalPages;
+            this.load();
+            return;
+          }
+          this.subjects = result.items;
+          this.total = result.total;
+          this.totalPages = result.totalPages;
+          this.loading = false;
+        },
+        error: () => {
+          this.error = 'Could not load subjects. Confirm the API is running.';
+          this.loading = false;
+        },
+      });
   }
 
-  get filtered(): Subject[] {
-    const q = this.search.trim().toLowerCase();
-    return this.sortRows(
-      q
-        ? this.subjects.filter(
-            (s) =>
-              s.subjectName?.toLowerCase().includes(q) || String(s.subjectId).includes(q),
-          )
-        : this.subjects,
-    );
+  onSearch(): void {
+    clearTimeout(this.searchTimer);
+    this.searchTimer = setTimeout(() => {
+      this.page = 1;
+      this.load();
+    }, 300);
   }
 
   toggleSort(key: string): void {
@@ -81,22 +100,21 @@ export class SubjectsComponent implements OnInit {
       this.sortKey = key;
       this.sortDir = 'asc';
     }
+    this.page = 1;
+    this.load();
   }
 
-  private sortValue(s: Subject): unknown {
-    switch (this.sortKey) {
-      case 'subjectId':
-        return s.subjectId;
-      case 'subjectName':
-        return s.subjectName;
-      default:
-        return undefined;
-    }
+  goToPage(p: number): void {
+    if (p === this.page) return;
+    this.page = p;
+    this.load();
   }
 
-  private sortRows(rows: Subject[]): Subject[] {
-    if (!this.sortKey) return rows;
-    return sortRows(rows, (s) => this.sortValue(s), this.sortDir);
+  changePageSize(size: number): void {
+    if (size === this.pageSize) return;
+    this.pageSize = size;
+    this.page = 1;
+    this.load();
   }
 
   openCreate(): void {

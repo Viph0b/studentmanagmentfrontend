@@ -5,7 +5,7 @@
   </div>
   <div class="tally">
     <span>courses</span>
-    <b>{{ subjects.length }}</b>
+    <b>{{ total }}</b>
   </div>
 </div>
 
@@ -48,6 +48,7 @@
       type="text"
       placeholder="Search by subject name…"
       [(ngModel)]="search"
+      (ngModelChange)="onSearch()"
       name="search"
     />
     <button class="search-clear" *ngIf="search" (click)="search = ''">
@@ -87,7 +88,7 @@
       </tr>
     </thead>
     <tbody>
-      <tr *ngFor="let s of filtered">
+      <tr *ngFor="let s of subjects">
         <td class="mono">{{ s.subjectId }}</td>
         <td>{{ s.subjectName }}</td>
         <td>
@@ -101,9 +102,17 @@
           </div>
         </td>
       </tr>
-      <tr *ngIf="filtered.length === 0">
+      <tr *ngIf="subjects.length === 0">
         <td colspan="3" class="empty-state">No subjects match this search.</td>
       </tr>
     </tbody>
   </table>
+  <app-pager
+    [page]="page"
+    [totalPages]="totalPages"
+    [total]="total"
+    [pageSize]="pageSize"
+    (pageChange)="goToPage($event)"
+    (pageSizeChange)="changePageSize($event)"
+  ></app-pager>
 </div>

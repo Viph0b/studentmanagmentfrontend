@@ -5,7 +5,7 @@
   </div>
   <div class="tally">
     <span>cohorts</span>
-    <b>{{ groups.length }}</b>
+    <b>{{ total }}</b>
   </div>
 </div>
 
@@ -97,8 +97,9 @@
   <div class="search-wrap">
     <input
       type="text"
-      placeholder="Search by group, major, or status…"
+      placeholder="Search by group name, year, or shift…"
       [(ngModel)]="search"
+      (ngModelChange)="onSearch()"
       name="search"
     />
     <button class="search-clear" *ngIf="search" (click)="search = ''">
@@ -186,7 +187,7 @@
       </tr>
     </thead>
     <tbody>
-      <tr *ngFor="let g of filtered">
+      <tr *ngFor="let g of groups">
         <td class="mono">{{ g.groupId }}</td>
         <td>
           <strong>{{ g.groupName }}</strong>
@@ -214,9 +215,17 @@
           </div>
         </td>
       </tr>
-      <tr *ngIf="filtered.length === 0">
+      <tr *ngIf="groups.length === 0">
         <td colspan="9" class="empty-state">No groups match this search.</td>
       </tr>
     </tbody>
   </table>
+  <app-pager
+    [page]="page"
+    [totalPages]="totalPages"
+    [total]="total"
+    [pageSize]="pageSize"
+    (pageChange)="goToPage($event)"
+    (pageSizeChange)="changePageSize($event)"
+  ></app-pager>
 </div>

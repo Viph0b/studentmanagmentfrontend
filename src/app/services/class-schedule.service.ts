@@ -4,6 +4,8 @@ import { Observable } from 'rxjs';
 
 import { API_BASE_URL } from '../api-config';
 import { ClassSchedule } from '../models/class-schedule.model';
+import { PagedResult } from '../models/paged-result.model';
+import { ListQuery, toHttpParams } from '../utils/list-query';
 
 @Injectable({ providedIn: 'root' })
 export class ClassScheduleService {
@@ -11,8 +13,10 @@ export class ClassScheduleService {
 
   constructor(private http: HttpClient) {}
 
-  getAll(): Observable<ClassSchedule[]> {
-    return this.http.get<ClassSchedule[]>(this.baseUrl);
+  getAll(query: ListQuery = {}): Observable<PagedResult<ClassSchedule>> {
+    return this.http.get<PagedResult<ClassSchedule>>(this.baseUrl, {
+      params: toHttpParams(query),
+    });
   }
 
   getById(scheduleId: number): Observable<ClassSchedule> {

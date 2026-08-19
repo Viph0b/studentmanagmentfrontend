@@ -3,7 +3,9 @@ import { Injectable } from '@angular/core';
 import { Observable } from 'rxjs';
 
 import { API_BASE_URL } from '../api-config';
+import { PagedResult } from '../models/paged-result.model';
 import { Student } from '../models/student.model';
+import { ListQuery, toHttpParams } from '../utils/list-query';
 
 @Injectable({ providedIn: 'root' })
 export class StudentService {
@@ -11,8 +13,10 @@ export class StudentService {
 
   constructor(private http: HttpClient) {}
 
-  getAll(): Observable<Student[]> {
-    return this.http.get<Student[]>(this.baseUrl);
+  getAll(query: ListQuery = {}): Observable<PagedResult<Student>> {
+    return this.http.get<PagedResult<Student>>(this.baseUrl, {
+      params: toHttpParams(query),
+    });
   }
 
   getById(studentId: number): Observable<Student> {

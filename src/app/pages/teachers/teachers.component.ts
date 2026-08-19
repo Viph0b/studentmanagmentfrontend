@@ -2,6 +2,7 @@ import { CommonModule } from "@angular/common";
 import { Component, OnInit } from "@angular/core";
 import { FormsModule } from "@angular/forms";
 
+import { PagerComponent } from "../../components/pager/pager.component";
 import { TeacherService } from "../../services/teacher.service";
 import { SubjectService } from "../../services/subject.service";
 import { ToastService } from "../../services/toast.service";
@@ -14,7 +15,7 @@ import {
   isPhone,
   isRealDate,
 } from "../../utils/validators";
-import { sortRows, SortOrder } from "../../utils/sort";
+import { SortOrder } from "../../utils/sort";
 
 type TeacherDraft = {
   teacherName: string;
@@ -37,7 +38,7 @@ const BLANK: TeacherDraft = {
 @Component({
   selector: "app-teachers",
   standalone: true,
-  imports: [CommonModule, FormsModule],
+  imports: [CommonModule, FormsModule, PagerComponent],
   templateUrl: "./teachers.component.html",
 })
 export class TeachersComponent implements OnInit {
@@ -48,6 +49,11 @@ export class TeachersComponent implements OnInit {
 
   sortKey = "";
   sortDir: SortOrder = "asc";
+
+  page = 1;
+  pageSize = 20;
+  total = 0;
+  totalPages = 0;
 
   subjectOptions: LabelValue[] = [];
   showAllSubjects = false;
@@ -68,6 +74,8 @@ export class TeachersComponent implements OnInit {
   subjectError = "";
   dobError = "";
   salaryError = "";
+
+  private searchTimer?: ReturnType<typeof setTimeout>;
 
   constructor(
     private teacherSvc: TeacherService,
@@ -109,30 +117,39 @@ export class TeachersComponent implements OnInit {
   load(): void {
     this.loading = true;
     this.error = "";
-    this.teacherSvc.getAll().subscribe({
-      next: (data) => {
-        this.teachers = data;
-        this.loading = false;
-      },
-      error: () => {
-        this.error = "Could not load teachers. Confirm the API is running.";
-        this.loading = false;
-      },
-    });
+    this.teacherSvc
+      .getAll({
+        search: this.search.trim() || undefined,
+        sortBy: this.sortKey || undefined,
+        sortDir: this.sortDir,
+        page: this.page,
+        pageSize: this.pageSize,
+      })
+      .subscribe({
+        next: (result) => {
+          if (result.totalPages > 0 && result.page > result.totalPages) {
+            this.page = result.totalPages;
+            this.load();
+            return;
+          }
+          this.teachers = result.items;
+          this.total = result.total;
+          this.totalPages = result.totalPages;
+          this.loading = false;
+        },
+        error: () => {
+          this.error = "Could not load teachers. Confirm the API is running.";
+          this.loading = false;
+        },
+      });
   }
 
-  get filtered(): Teacher[] {
-    const q = this.search.trim().toLowerCase();
-    return this.sortRows(
-      q
-        ? this.teachers.filter(
-            (t) =>
-              t.teacherName?.toLowerCase().includes(q) ||
-              t.subjectNames?.join(", ").toLowerCase().includes(q) ||
-              String(t.teacherId).includes(q),
-          )
-        : this.teachers,
-    );
+  onSearch(): void {
+    clearTimeout(this.searchTimer);
+    this.searchTimer = setTimeout(() => {
+      this.page = 1;
+      this.load();
+    }, 300);
   }
 
   toggleSort(key: string): void {
@@ -142,26 +159,21 @@ export class TeachersComponent implements OnInit {
       this.sortKey = key;
       this.sortDir = "asc";
     }
+    this.page = 1;
+    this.load();
   }
 
-  private sortValue(t: Teacher): unknown {
-    switch (this.sortKey) {
-      case "teacherId":
-        return t.teacherId;
-      case "teacherName":
-        return t.teacherName;
-      case "gender":
-        return t.gender;
-      case "salary":
-        return t.salary;
-      default:
-        return undefined;
-    }
+  goToPage(p: number): void {
+    if (p === this.page) return;
+    this.page = p;
+    this.load();
   }
 
-  private sortRows(rows: Teacher[]): Teacher[] {
-    if (!this.sortKey) return rows;
-    return sortRows(rows, (t) => this.sortValue(t), this.sortDir);
+  changePageSize(size: number): void {
+    if (size === this.pageSize) return;
+    this.pageSize = size;
+    this.page = 1;
+    this.load();
   }
 
   openCreate(): void {

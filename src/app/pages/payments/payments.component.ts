@@ -2,6 +2,7 @@ import { CommonModule } from "@angular/common";
 import { Component, OnInit } from "@angular/core";
 import { FormsModule } from "@angular/forms";
 
+import { PagerComponent } from "../../components/pager/pager.component";
 import { FeePaymentService } from "../../services/fee-payment.service";
 import { StudentService } from "../../services/student.service";
 import { MajorService } from "../../services/major.service";
@@ -11,7 +12,7 @@ import { StudentFeePayment } from "../../models/fee-payment.model";
 import { Student } from "../../models/student.model";
 import { Major } from "../../models/major.model";
 import { isMoneyMin, isRealDate } from "../../utils/validators";
-import { sortRows, SortOrder } from "../../utils/sort";
+import { SortOrder } from "../../utils/sort";
 
 type PaymentDraft = {
   studentId: number;
@@ -32,7 +33,7 @@ const BLANK: PaymentDraft = {
 @Component({
   selector: "app-payments",
   standalone: true,
-  imports: [CommonModule, FormsModule],
+  imports: [CommonModule, FormsModule, PagerComponent],
   templateUrl: "./payments.component.html",
 })
 export class PaymentsComponent implements OnInit {
@@ -47,13 +48,20 @@ export class PaymentsComponent implements OnInit {
   sortKey = "";
   sortDir: SortOrder = "asc";
 
+  page = 1;
+  pageSize = 20;
+  total = 0;
+  totalPages = 0;
+
   showForm = false;
   editingId: number | null = null;
   draft: PaymentDraft = { ...BLANK };
   saving = false;
-formError = "";
+  formError = "";
   amountError = "";
   dateError = "";
+
+  private searchTimer?: ReturnType<typeof setTimeout>;
 
   constructor(
     private paymentSvc: FeePaymentService,
@@ -65,12 +73,12 @@ formError = "";
 
   ngOnInit(): void {
     this.load();
-    this.studentSvc.getAll().subscribe({
-      next: (students) => (this.students = students),
+    this.studentSvc.getAll({ pageSize: 200 }).subscribe({
+      next: (students) => (this.students = students.items),
       error: () => (this.students = []),
     });
-    this.majorSvc.getAll().subscribe({
-      next: (majors) => (this.majors = majors),
+    this.majorSvc.getAll({ pageSize: 200 }).subscribe({
+      next: (majors) => (this.majors = majors.items),
       error: () => (this.majors = []),
     });
   }
@@ -103,30 +111,39 @@ formError = "";
   load(): void {
     this.loading = true;
     this.error = "";
-    this.paymentSvc.getAll().subscribe({
-      next: (data) => {
-        this.payments = data;
-        this.loading = false;
-      },
-      error: () => {
-        this.error = "Could not load payments. Confirm the API is running.";
-        this.loading = false;
-      },
-    });
+    this.paymentSvc
+      .getAll({
+        search: this.search.trim() || undefined,
+        sortBy: this.sortKey || undefined,
+        sortDir: this.sortDir,
+        page: this.page,
+        pageSize: this.pageSize,
+      })
+      .subscribe({
+        next: (result) => {
+          if (result.totalPages > 0 && result.page > result.totalPages) {
+            this.page = result.totalPages;
+            this.load();
+            return;
+          }
+          this.payments = result.items;
+          this.total = result.total;
+          this.totalPages = result.totalPages;
+          this.loading = false;
+        },
+        error: () => {
+          this.error = "Could not load payments. Confirm the API is running.";
+          this.loading = false;
+        },
+      });
   }
 
-  get filtered(): StudentFeePayment[] {
-    const q = this.search.trim().toLowerCase();
-    return this.sortRows(
-      q
-        ? this.payments.filter(
-            (p) =>
-              this.studentName(p.studentId).toLowerCase().includes(q) ||
-              String(p.studentId).includes(q) ||
-              p.paymentMethod?.toLowerCase().includes(q),
-          )
-        : this.payments,
-    );
+  onSearch(): void {
+    clearTimeout(this.searchTimer);
+    this.searchTimer = setTimeout(() => {
+      this.page = 1;
+      this.load();
+    }, 300);
   }
 
   toggleSort(key: string): void {
@@ -136,28 +153,21 @@ formError = "";
       this.sortKey = key;
       this.sortDir = "asc";
     }
+    this.page = 1;
+    this.load();
   }
 
-  private sortValue(p: StudentFeePayment): unknown {
-    switch (this.sortKey) {
-      case "paymentId":
-        return p.paymentId;
-      case "student":
-        return p.studentName || this.studentName(p.studentId);
-      case "semester":
-        return p.semester;
-      case "amountPaid":
-        return p.amountPaid;
-      case "paymentMethod":
-        return p.paymentMethod;
-      default:
-        return undefined;
-    }
+  goToPage(p: number): void {
+    if (p === this.page) return;
+    this.page = p;
+    this.load();
   }
 
-  private sortRows(rows: StudentFeePayment[]): StudentFeePayment[] {
-    if (!this.sortKey) return rows;
-    return sortRows(rows, (p) => this.sortValue(p), this.sortDir);
+  changePageSize(size: number): void {
+    if (size === this.pageSize) return;
+    this.pageSize = size;
+    this.page = 1;
+    this.load();
   }
 
   openCreate(): void {

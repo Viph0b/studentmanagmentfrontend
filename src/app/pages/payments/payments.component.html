@@ -5,7 +5,7 @@
   </div>
   <div class="tally">
     <span>transactions</span>
-    <b>{{ payments.length }}</b>
+    <b>{{ total }}</b>
   </div>
 </div>
 
@@ -109,6 +109,7 @@
       type="text"
       placeholder="Search by student or method…"
       [(ngModel)]="search"
+      (ngModelChange)="onSearch()"
       name="search"
     />
     <button class="search-clear" *ngIf="search" (click)="search = ''">
@@ -140,9 +141,9 @@
         </th>
         <th
           class="sortable"
-          [class.sort-asc]="sortKey === 'student' && sortDir === 'asc'"
-          [class.sort-desc]="sortKey === 'student' && sortDir === 'desc'"
-          (click)="toggleSort('student')"
+          [class.sort-asc]="sortKey === 'studentName' && sortDir === 'asc'"
+          [class.sort-desc]="sortKey === 'studentName' && sortDir === 'desc'"
+          (click)="toggleSort('studentName')"
         >
           Student
         </th>
@@ -176,7 +177,7 @@
       </tr>
     </thead>
     <tbody>
-      <tr *ngFor="let p of filtered">
+      <tr *ngFor="let p of payments">
         <td class="mono">{{ p.paymentId }}</td>
         <td>{{ p.studentName || studentName(p.studentId) }}</td>
         <td>{{ studentMajorName(p.studentId) }}</td>
@@ -195,9 +196,17 @@
           </div>
         </td>
       </tr>
-      <tr *ngIf="filtered.length === 0">
+      <tr *ngIf="payments.length === 0">
         <td colspan="8" class="empty-state">No payments match this search.</td>
       </tr>
     </tbody>
   </table>
+  <app-pager
+    [page]="page"
+    [totalPages]="totalPages"
+    [total]="total"
+    [pageSize]="pageSize"
+    (pageChange)="goToPage($event)"
+    (pageSizeChange)="changePageSize($event)"
+  ></app-pager>
 </div>

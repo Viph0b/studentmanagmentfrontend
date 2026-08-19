@@ -1,7 +1,7 @@
 import { CommonModule } from '@angular/common';
 import { Component, OnInit } from '@angular/core';
 import { RouterLink } from '@angular/router';
-import { forkJoin } from 'rxjs';
+import { catchError, forkJoin, map, Observable, of } from 'rxjs';
 
 import { StudentService } from '../../services/student.service';
 import { TeacherService } from '../../services/teacher.service';
@@ -10,6 +10,7 @@ import { GroupService } from '../../services/group.service';
 import { SubjectService } from '../../services/subject.service';
 import { ClassScheduleService } from '../../services/class-schedule.service';
 import { FeePaymentService } from '../../services/fee-payment.service';
+import { PagedResult } from '../../models/paged-result.model';
 
 interface Tile {
   no: string;
@@ -52,29 +53,38 @@ export class HomeComponent implements OnInit {
 
   ngOnInit(): void {
     forkJoin({
-      students: this.studentSvc.getAll(),
-      teachers: this.teacherSvc.getAll(),
-      majors: this.majorSvc.getAll(),
-      groups: this.groupSvc.getAll(),
-      subjects: this.subjectSvc.getAll(),
-      schedule: this.scheduleSvc.getAll(),
-      payments: this.paymentSvc.getAll(),
+      students: this.count(this.studentSvc.getAll()),
+      teachers: this.count(this.teacherSvc.getAll()),
+      majors: this.count(this.majorSvc.getAll()),
+      groups: this.count(this.groupSvc.getAll()),
+      subjects: this.count(this.subjectSvc.getAll()),
+      schedule: this.count(this.scheduleSvc.getAll()),
+      payments: this.count(this.paymentSvc.getAll()),
     }).subscribe({
       next: (res) => {
-        this.tiles[0].count = res.students.length;
-        this.tiles[1].count = res.teachers.length;
-        this.tiles[2].count = res.majors.length;
-        this.tiles[3].count = res.groups.length;
-        this.tiles[4].count = res.subjects.length;
-        this.tiles[5].count = res.schedule.length;
-        this.tiles[6].count = res.payments.length;
+        this.tiles[0].count = res.students;
+        this.tiles[1].count = res.teachers;
+        this.tiles[2].count = res.majors;
+        this.tiles[3].count = res.groups;
+        this.tiles[4].count = res.subjects;
+        this.tiles[5].count = res.schedule;
+        this.tiles[6].count = res.payments;
         this.loading = false;
-      },
-      error: () => {
-        this.error =
-          'Could not reach the API. Confirm the backend is running at http://localhost:5073 and CORS allows http://localhost:4200.';
-        this.loading = false;
+        const counts = [res.students, res.teachers, res.majors, res.groups, res.subjects, res.schedule, res.payments];
+        if (counts.every((c) => c === null)) {
+          this.error =
+            'Could not reach the API. Confirm the backend is running at http://localhost:5073 and CORS allows http://localhost:4200.';
+        } else if (counts.some((c) => c === null)) {
+          this.error = 'Some sections could not be loaded.';
+        }
       },
     });
+  }
+
+  private count(source: Observable<PagedResult<unknown>>): Observable<number | null> {
+    return source.pipe(
+      map((result) => result.total),
+      catchError(() => of(null)),
+    );
   }
 }

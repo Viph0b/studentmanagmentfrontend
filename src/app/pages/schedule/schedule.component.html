@@ -5,7 +5,7 @@
   </div>
   <div class="tally">
     <span>sessions</span>
-    <b>{{ schedules.length }}</b>
+    <b>{{ total }}</b>
   </div>
 </div>
 
@@ -145,8 +145,9 @@
   <div class="search-wrap">
     <input
       type="text"
-      placeholder="Search by group, subject, teacher, or room…"
+      placeholder="Search by room, shift, or academic year…"
       [(ngModel)]="search"
+      (ngModelChange)="onSearch()"
       name="search"
     />
     <button class="search-clear" *ngIf="search" (click)="search = ''">
@@ -235,7 +236,7 @@
       </tr>
     </thead>
     <tbody>
-      <tr *ngFor="let s of filtered">
+      <tr *ngFor="let s of schedules">
         <td class="mono">{{ s.scheduleId }}</td>
         <td>
           <span class="chip">{{ s.groupName }}</span>
@@ -258,9 +259,17 @@
           </div>
         </td>
       </tr>
-      <tr *ngIf="filtered.length === 0">
+      <tr *ngIf="schedules.length === 0">
         <td colspan="10" class="empty-state">No sessions match this search.</td>
       </tr>
     </tbody>
   </table>
+  <app-pager
+    [page]="page"
+    [totalPages]="totalPages"
+    [total]="total"
+    [pageSize]="pageSize"
+    (pageChange)="goToPage($event)"
+    (pageSizeChange)="changePageSize($event)"
+  ></app-pager>
 </div>

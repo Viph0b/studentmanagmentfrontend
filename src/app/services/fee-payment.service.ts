@@ -4,6 +4,8 @@ import { Observable } from 'rxjs';
 
 import { API_BASE_URL } from '../api-config';
 import { StudentFeePayment } from '../models/fee-payment.model';
+import { PagedResult } from '../models/paged-result.model';
+import { ListQuery, toHttpParams } from '../utils/list-query';
 
 @Injectable({ providedIn: 'root' })
 export class FeePaymentService {
@@ -11,8 +13,10 @@ export class FeePaymentService {
 
   constructor(private http: HttpClient) {}
 
-  getAll(): Observable<StudentFeePayment[]> {
-    return this.http.get<StudentFeePayment[]>(this.baseUrl);
+  getAll(query: ListQuery = {}): Observable<PagedResult<StudentFeePayment>> {
+    return this.http.get<PagedResult<StudentFeePayment>>(this.baseUrl, {
+      params: toHttpParams(query),
+    });
   }
 
   getById(paymentId: number): Observable<StudentFeePayment> {

@@ -5,6 +5,8 @@ import { Observable } from "rxjs";
 import { API_BASE_URL } from "../api-config";
 import { Group } from "../models/group.model";
 import { LabelValue } from "../models/label-value.model";
+import { PagedResult } from "../models/paged-result.model";
+import { ListQuery, toHttpParams } from "../utils/list-query";
 
 @Injectable({ providedIn: "root" })
 export class GroupService {
@@ -12,8 +14,10 @@ export class GroupService {
 
   constructor(private http: HttpClient) {}
 
-  getAll(): Observable<Group[]> {
-    return this.http.get<Group[]>(this.baseUrl);
+  getAll(query: ListQuery = {}): Observable<PagedResult<Group>> {
+    return this.http.get<PagedResult<Group>>(this.baseUrl, {
+      params: toHttpParams(query),
+    });
   }
 
   getOptions(): Observable<LabelValue[]> {

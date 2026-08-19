@@ -5,7 +5,7 @@
   </div>
   <div class="tally">
     <span>on record</span>
-    <b>{{ students.length }}</b>
+    <b>{{ total }}</b>
   </div>
 </div>
 
@@ -113,8 +113,9 @@
   <div class="search-wrap">
     <input
       type="text"
-      placeholder="Search by name, email, major, or group…"
+      placeholder="Search by name, email, or phone…"
       [(ngModel)]="search"
+      (ngModelChange)="onSearch()"
       name="search"
     />
     <button class="search-clear" *ngIf="search" (click)="search = ''">
@@ -182,7 +183,7 @@
       </tr>
     </thead>
     <tbody>
-      <tr *ngFor="let s of filtered">
+      <tr *ngFor="let s of students">
         <td class="mono">{{ s.studentId }}</td>
         <td>{{ s.studentName }}</td>
         <td>{{ s.gender }}</td>
@@ -203,9 +204,17 @@
           </div>
         </td>
       </tr>
-      <tr *ngIf="filtered.length === 0">
+      <tr *ngIf="students.length === 0">
         <td colspan="8" class="empty-state">No students match this search.</td>
       </tr>
     </tbody>
   </table>
+  <app-pager
+    [page]="page"
+    [totalPages]="totalPages"
+    [total]="total"
+    [pageSize]="pageSize"
+    (pageChange)="goToPage($event)"
+    (pageSizeChange)="changePageSize($event)"
+  ></app-pager>
 </div>

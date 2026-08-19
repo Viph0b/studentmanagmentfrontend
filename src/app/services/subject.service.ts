@@ -3,8 +3,10 @@ import { Injectable } from "@angular/core";
 import { Observable } from "rxjs";
 
 import { API_BASE_URL } from "../api-config";
-import { Subject } from "../models/subject.model";
 import { LabelValue } from "../models/label-value.model";
+import { PagedResult } from "../models/paged-result.model";
+import { Subject } from "../models/subject.model";
+import { ListQuery, toHttpParams } from "../utils/list-query";
 
 @Injectable({ providedIn: "root" })
 export class SubjectService {
@@ -12,8 +14,10 @@ export class SubjectService {
 
   constructor(private http: HttpClient) {}
 
-  getAll(): Observable<Subject[]> {
-    return this.http.get<Subject[]>(this.baseUrl);
+  getAll(query: ListQuery = {}): Observable<PagedResult<Subject>> {
+    return this.http.get<PagedResult<Subject>>(this.baseUrl, {
+      params: toHttpParams(query),
+    });
   }
 
   getOptions(): Observable<LabelValue[]> {

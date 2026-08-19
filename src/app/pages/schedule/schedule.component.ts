@@ -2,6 +2,7 @@ import { CommonModule } from '@angular/common';
 import { Component, OnInit } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 
+import { PagerComponent } from '../../components/pager/pager.component';
 import { ClassScheduleService } from '../../services/class-schedule.service';
 import { MajorService } from '../../services/major.service';
 import { GroupService } from '../../services/group.service';
@@ -15,7 +16,7 @@ import { Teacher } from '../../models/teacher.model';
 import { Major } from '../../models/major.model';
 import { Group } from '../../models/group.model';
 import { isAcademicYear, isTimeRange } from '../../utils/validators';
-import { sortRows, SortOrder, DAY_ORDER, SHIFT_ORDER } from '../../utils/sort';
+import { SortOrder } from '../../utils/sort';
 
 type ScheduleDraft = {
   groupId: number;
@@ -50,7 +51,7 @@ const DAYS = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'
 @Component({
   selector: 'app-schedule',
   standalone: true,
-  imports: [CommonModule, FormsModule],
+  imports: [CommonModule, FormsModule, PagerComponent],
   templateUrl: './schedule.component.html',
 })
 export class ScheduleComponent implements OnInit {
@@ -63,6 +64,11 @@ export class ScheduleComponent implements OnInit {
   sortKey = '';
   sortDir: SortOrder = 'asc';
 
+  page = 1;
+  pageSize = 20;
+  total = 0;
+  totalPages = 0;
+
   majors: Major[] = [];
   groups: Group[] = [];
   subjectOptions: LabelValue[] = [];
@@ -73,9 +79,11 @@ export class ScheduleComponent implements OnInit {
   editingId: number | null = null;
   draft: ScheduleDraft = { ...BLANK };
   saving = false;
-formError = '';
+  formError = '';
   timeError = '';
   yearError = '';
+
+  private searchTimer?: ReturnType<typeof setTimeout>;
 
   constructor(
     private scheduleSvc: ClassScheduleService,
@@ -93,20 +101,20 @@ formError = '';
   }
 
   loadLookups(): void {
-    this.majorSvc.getAll().subscribe({
-      next: (majors) => (this.majors = majors),
+    this.majorSvc.getAll({ pageSize: 200 }).subscribe({
+      next: (majors) => (this.majors = majors.items),
       error: () => (this.majors = []),
     });
-    this.groupSvc.getAll().subscribe({
-      next: (groups) => (this.groups = groups),
+    this.groupSvc.getAll({ pageSize: 200 }).subscribe({
+      next: (groups) => (this.groups = groups.items),
       error: () => (this.groups = []),
     });
     this.subjectSvc.getOptions().subscribe({
       next: (options) => (this.subjectOptions = options),
       error: () => (this.subjectOptions = []),
     });
-    this.teacherSvc.getAll().subscribe({
-      next: (teachers) => (this.teachers = teachers),
+    this.teacherSvc.getAll({ pageSize: 200 }).subscribe({
+      next: (teachers) => (this.teachers = teachers.items),
       error: () => (this.teachers = []),
     });
   }
@@ -155,31 +163,39 @@ formError = '';
   load(): void {
     this.loading = true;
     this.error = '';
-    this.scheduleSvc.getAll().subscribe({
-      next: (data) => {
-        this.schedules = data;
-        this.loading = false;
-      },
-      error: () => {
-        this.error = 'Could not load the schedule. Confirm the API is running.';
-        this.loading = false;
-      },
-    });
+    this.scheduleSvc
+      .getAll({
+        search: this.search.trim() || undefined,
+        sortBy: this.sortKey || undefined,
+        sortDir: this.sortDir,
+        page: this.page,
+        pageSize: this.pageSize,
+      })
+      .subscribe({
+        next: (result) => {
+          if (result.totalPages > 0 && result.page > result.totalPages) {
+            this.page = result.totalPages;
+            this.load();
+            return;
+          }
+          this.schedules = result.items;
+          this.total = result.total;
+          this.totalPages = result.totalPages;
+          this.loading = false;
+        },
+        error: () => {
+          this.error = 'Could not load the schedule. Confirm the API is running.';
+          this.loading = false;
+        },
+      });
   }
 
-  get filtered(): ClassSchedule[] {
-    const q = this.search.trim().toLowerCase();
-    return this.sortRows(
-      q
-        ? this.schedules.filter(
-            (s) =>
-              s.groupName?.toLowerCase().includes(q) ||
-              s.subjectName?.toLowerCase().includes(q) ||
-              s.teacherName?.toLowerCase().includes(q) ||
-              s.room?.toLowerCase().includes(q),
-          )
-        : this.schedules,
-    );
+  onSearch(): void {
+    clearTimeout(this.searchTimer);
+    this.searchTimer = setTimeout(() => {
+      this.page = 1;
+      this.load();
+    }, 300);
   }
 
   toggleSort(key: string): void {
@@ -189,40 +205,21 @@ formError = '';
       this.sortKey = key;
       this.sortDir = 'asc';
     }
+    this.page = 1;
+    this.load();
   }
 
-  private sortValue(s: ClassSchedule): unknown {
-    switch (this.sortKey) {
-      case 'scheduleId':
-        return s.scheduleId;
-      case 'groupName':
-        return s.groupName;
-      case 'majorName':
-        return s.majorName;
-      case 'subjectName':
-        return s.subjectName;
-      case 'teacherName':
-        return s.teacherName;
-      case 'dayOfWeek':
-        return s.dayOfWeek;
-      case 'room':
-        return s.room;
-      case 'shift':
-        return s.shift;
-      default:
-        return undefined;
-    }
+  goToPage(p: number): void {
+    if (p === this.page) return;
+    this.page = p;
+    this.load();
   }
 
-  private sortRows(rows: ClassSchedule[]): ClassSchedule[] {
-    if (!this.sortKey) return rows;
-    const orderList =
-      this.sortKey === 'dayOfWeek'
-        ? DAY_ORDER
-        : this.sortKey === 'shift'
-          ? SHIFT_ORDER
-          : undefined;
-    return sortRows(rows, (s) => this.sortValue(s), this.sortDir, orderList);
+  changePageSize(size: number): void {
+    if (size === this.pageSize) return;
+    this.pageSize = size;
+    this.page = 1;
+    this.load();
   }
 
   openCreate(): void {

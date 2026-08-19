@@ -2,6 +2,7 @@ import { CommonModule } from '@angular/common';
 import { Component, OnInit } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 
+import { PagerComponent } from '../../components/pager/pager.component';
 import { GroupService } from '../../services/group.service';
 import { MajorService } from '../../services/major.service';
 import { ToastService } from '../../services/toast.service';
@@ -9,7 +10,7 @@ import { ConfirmService } from '../../services/confirm.service';
 import { Group } from '../../models/group.model';
 import { LabelValue } from '../../models/label-value.model';
 import { isAcademicYear } from '../../utils/validators';
-import { sortRows, SortOrder, SHIFT_ORDER } from '../../utils/sort';
+import { SortOrder } from '../../utils/sort';
 
 type GroupDraft = {
   groupName: string;
@@ -32,7 +33,7 @@ const BLANK: GroupDraft = {
 @Component({
   selector: 'app-groups',
   standalone: true,
-  imports: [CommonModule, FormsModule],
+  imports: [CommonModule, FormsModule, PagerComponent],
   templateUrl: './groups.component.html',
 })
 export class GroupsComponent implements OnInit {
@@ -44,6 +45,11 @@ export class GroupsComponent implements OnInit {
   sortKey = '';
   sortDir: SortOrder = 'asc';
 
+  page = 1;
+  pageSize = 20;
+  total = 0;
+  totalPages = 0;
+
   majorOptions: LabelValue[] = [];
   semesterOptions = [1, 2, 3, 4, 5, 6, 7, 8];
 
@@ -51,9 +57,11 @@ export class GroupsComponent implements OnInit {
   editingId: number | null = null;
   draft: GroupDraft = { ...BLANK };
   saving = false;
-formError = '';
+  formError = '';
   majorError = '';
   yearError = '';
+
+  private searchTimer?: ReturnType<typeof setTimeout>;
 
   constructor(
     private groupSvc: GroupService,
@@ -77,30 +85,39 @@ formError = '';
   load(): void {
     this.loading = true;
     this.error = '';
-    this.groupSvc.getAll().subscribe({
-      next: (data) => {
-        this.groups = data;
-        this.loading = false;
-      },
-      error: () => {
-        this.error = 'Could not load groups. Confirm the API is running.';
-        this.loading = false;
-      },
-    });
+    this.groupSvc
+      .getAll({
+        search: this.search.trim() || undefined,
+        sortBy: this.sortKey || undefined,
+        sortDir: this.sortDir,
+        page: this.page,
+        pageSize: this.pageSize,
+      })
+      .subscribe({
+        next: (result) => {
+          if (result.totalPages > 0 && result.page > result.totalPages) {
+            this.page = result.totalPages;
+            this.load();
+            return;
+          }
+          this.groups = result.items;
+          this.total = result.total;
+          this.totalPages = result.totalPages;
+          this.loading = false;
+        },
+        error: () => {
+          this.error = 'Could not load groups. Confirm the API is running.';
+          this.loading = false;
+        },
+      });
   }
 
-  get filtered(): Group[] {
-    const q = this.search.trim().toLowerCase();
-    return this.sortRows(
-      q
-        ? this.groups.filter(
-            (g) =>
-              g.groupName?.toLowerCase().includes(q) ||
-              g.majorName?.toLowerCase().includes(q) ||
-              g.status?.toLowerCase().includes(q),
-          )
-        : this.groups,
-    );
+  onSearch(): void {
+    clearTimeout(this.searchTimer);
+    this.searchTimer = setTimeout(() => {
+      this.page = 1;
+      this.load();
+    }, 300);
   }
 
   toggleSort(key: string): void {
@@ -110,35 +127,21 @@ formError = '';
       this.sortKey = key;
       this.sortDir = 'asc';
     }
+    this.page = 1;
+    this.load();
   }
 
-  private sortValue(g: Group): unknown {
-    switch (this.sortKey) {
-      case 'groupId':
-        return g.groupId;
-      case 'groupName':
-        return g.groupName;
-      case 'majorName':
-        return g.majorName;
-      case 'studentCount':
-        return g.studentCount ?? 0;
-      case 'currentSemester':
-        return g.currentSemester;
-      case 'academicYear':
-        return g.academicYear;
-      case 'shift':
-        return g.shift;
-      case 'status':
-        return g.status;
-      default:
-        return undefined;
-    }
+  goToPage(p: number): void {
+    if (p === this.page) return;
+    this.page = p;
+    this.load();
   }
 
-  private sortRows(rows: Group[]): Group[] {
-    if (!this.sortKey) return rows;
-    const orderList = this.sortKey === 'shift' ? SHIFT_ORDER : undefined;
-    return sortRows(rows, (g) => this.sortValue(g), this.sortDir, orderList);
+  changePageSize(size: number): void {
+    if (size === this.pageSize) return;
+    this.pageSize = size;
+    this.page = 1;
+    this.load();
   }
 
   openCreate(): void {

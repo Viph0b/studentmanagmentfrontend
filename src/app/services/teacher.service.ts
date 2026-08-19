@@ -3,8 +3,10 @@ import { Injectable } from '@angular/core';
 import { Observable } from 'rxjs';
 
 import { API_BASE_URL } from '../api-config';
-import { Teacher } from '../models/teacher.model';
 import { LabelValue } from '../models/label-value.model';
+import { PagedResult } from '../models/paged-result.model';
+import { Teacher } from '../models/teacher.model';
+import { ListQuery, toHttpParams } from '../utils/list-query';
 
 @Injectable({ providedIn: 'root' })
 export class TeacherService {
@@ -12,8 +14,10 @@ export class TeacherService {
 
   constructor(private http: HttpClient) {}
 
-  getAll(): Observable<Teacher[]> {
-    return this.http.get<Teacher[]>(this.baseUrl);
+  getAll(query: ListQuery = {}): Observable<PagedResult<Teacher>> {
+    return this.http.get<PagedResult<Teacher>>(this.baseUrl, {
+      params: toHttpParams(query),
+    });
   }
 
   getOptions(): Observable<LabelValue[]> {

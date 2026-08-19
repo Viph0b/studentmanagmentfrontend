@@ -543,6 +543,39 @@ a:hover {
   height: 14px;
 }
 
+.pager {
+  display: flex;
+  gap: 16px;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  padding: 14px 0 2px;
+}
+
+.pager-pages {
+  display: flex;
+  gap: 6px;
+  align-items: center;
+  flex-wrap: wrap;
+}
+
+.pager-pages .page-num {
+  min-width: 34px;
+  justify-content: center;
+}
+
+.pager-size {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+  color: var(--neu-text-muted);
+  font-size: 13px;
+}
+
+.pager-size select {
+  min-width: 110px;
+}
+
 .card {
   border-radius: var(--neu-radius-lg);
   background: var(--neu-bg);

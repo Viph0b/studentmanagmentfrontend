@@ -2,6 +2,7 @@ import { CommonModule } from "@angular/common";
 import { Component, OnInit } from "@angular/core";
 import { FormsModule } from "@angular/forms";
 
+import { PagerComponent } from "../../components/pager/pager.component";
 import { MajorService } from "../../services/major.service";
 import { SubjectService } from "../../services/subject.service";
 import { ToastService } from "../../services/toast.service";
@@ -9,7 +10,7 @@ import { ConfirmService } from "../../services/confirm.service";
 import { Major } from "../../models/major.model";
 import { LabelValue } from "../../models/label-value.model";
 import { isMoneyMin } from "../../utils/validators";
-import { sortRows, SortOrder } from "../../utils/sort";
+import { SortOrder } from "../../utils/sort";
 
 type MajorDraft = {
   majorName: string;
@@ -26,7 +27,7 @@ const BLANK: MajorDraft = {
 @Component({
   selector: "app-majors",
   standalone: true,
-  imports: [CommonModule, FormsModule],
+  imports: [CommonModule, FormsModule, PagerComponent],
   templateUrl: "./majors.component.html",
 })
 export class MajorsComponent implements OnInit {
@@ -38,16 +39,23 @@ export class MajorsComponent implements OnInit {
   sortKey = "";
   sortDir: SortOrder = "asc";
 
+  page = 1;
+  pageSize = 20;
+  total = 0;
+  totalPages = 0;
+
   showForm = false;
   editingId: number | null = null;
   draft: MajorDraft = { ...BLANK };
   saving = false;
-formError = "";
+  formError = "";
   priceError = "";
 
   subjectOptions: LabelValue[] = [];
   showAllSubjects = false;
   readonly previewLimit = 25;
+
+  private searchTimer?: ReturnType<typeof setTimeout>;
 
   get visibleSubjects(): LabelValue[] {
     return this.showAllSubjects
@@ -91,28 +99,39 @@ formError = "";
   load(): void {
     this.loading = true;
     this.error = "";
-    this.majorSvc.getAll().subscribe({
-      next: (data) => {
-        this.majors = data;
-        this.loading = false;
-      },
-      error: () => {
-        this.error = "Could not load majors. Confirm the API is running.";
-        this.loading = false;
-      },
-    });
+    this.majorSvc
+      .getAll({
+        search: this.search.trim() || undefined,
+        sortBy: this.sortKey || undefined,
+        sortDir: this.sortDir,
+        page: this.page,
+        pageSize: this.pageSize,
+      })
+      .subscribe({
+        next: (result) => {
+          if (result.totalPages > 0 && result.page > result.totalPages) {
+            this.page = result.totalPages;
+            this.load();
+            return;
+          }
+          this.majors = result.items;
+          this.total = result.total;
+          this.totalPages = result.totalPages;
+          this.loading = false;
+        },
+        error: () => {
+          this.error = "Could not load majors. Confirm the API is running.";
+          this.loading = false;
+        },
+      });
   }
 
-  get filtered(): Major[] {
-    const q = this.search.trim().toLowerCase();
-    return this.sortRows(
-      q
-        ? this.majors.filter(
-            (m) =>
-              m.majorName?.toLowerCase().includes(q) || String(m.majorId).includes(q),
-          )
-        : this.majors,
-    );
+  onSearch(): void {
+    clearTimeout(this.searchTimer);
+    this.searchTimer = setTimeout(() => {
+      this.page = 1;
+      this.load();
+    }, 300);
   }
 
   toggleSort(key: string): void {
@@ -122,24 +141,21 @@ formError = "";
       this.sortKey = key;
       this.sortDir = "asc";
     }
+    this.page = 1;
+    this.load();
   }
 
-  private sortValue(m: Major): unknown {
-    switch (this.sortKey) {
-      case "majorId":
-        return m.majorId;
-      case "majorName":
-        return m.majorName;
-      case "pricePerSemester":
-        return m.pricePerSemester;
-      default:
-        return undefined;
-    }
+  goToPage(p: number): void {
+    if (p === this.page) return;
+    this.page = p;
+    this.load();
   }
 
-  private sortRows(rows: Major[]): Major[] {
-    if (!this.sortKey) return rows;
-    return sortRows(rows, (m) => this.sortValue(m), this.sortDir);
+  changePageSize(size: number): void {
+    if (size === this.pageSize) return;
+    this.pageSize = size;
+    this.page = 1;
+    this.load();
   }
 
   openCreate(): void {
