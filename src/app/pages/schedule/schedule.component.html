@@ -26,7 +26,7 @@
         <label for="groupName">Group</label>
         <select id="groupName" name="groupName" [(ngModel)]="draft.groupId" (ngModelChange)="onGroupChange()">
           <option [ngValue]="0" disabled>Select a group</option>
-          <option *ngFor="let g of visibleGroups" [ngValue]="g.id">
+          <option *ngFor="let g of visibleGroups; trackBy: trackById" [ngValue]="g.id">
             {{ g.name }}
           </option>
         </select>
@@ -35,7 +35,7 @@
         <label for="major">Major</label>
         <select id="major" name="major" [(ngModel)]="draft.majorId" (ngModelChange)="onMajorChange()">
           <option [ngValue]="0" disabled>Select a major</option>
-          <option *ngFor="let m of majors" [ngValue]="m.majorId">
+          <option *ngFor="let m of majors; trackBy: trackByMajorId" [ngValue]="m.majorId">
             {{ m.majorName }}
           </option>
         </select>
@@ -44,7 +44,7 @@
         <label for="teacherId">Teacher</label>
         <select id="teacherId" name="teacherId" [(ngModel)]="draft.teacherId" (ngModelChange)="onTeacherChange()">
           <option [ngValue]="0" disabled>Select a teacher</option>
-          <option *ngFor="let t of teachers" [ngValue]="t.teacherId">
+          <option *ngFor="let t of teachers; trackBy: trackByTeacherId" [ngValue]="t.teacherId">
             {{ t.teacherName }} · ID {{ t.teacherId }}
           </option>
         </select>
@@ -53,7 +53,7 @@
         <label for="subject">Subject</label>
         <select id="subject" name="subject" [(ngModel)]="draft.subjectId">
           <option [ngValue]="0" disabled>Select a subject</option>
-          <option *ngFor="let subj of availableSubjects" [ngValue]="subj.id">
+          <option *ngFor="let subj of availableSubjects; trackBy: trackById" [ngValue]="subj.id">
             {{ subj.name }}
           </option>
         </select>
@@ -61,7 +61,7 @@
       <div class="field">
         <label for="dayOfWeek">Day of week</label>
         <select id="dayOfWeek" name="dayOfWeek" [(ngModel)]="draft.dayOfWeek">
-          <option *ngFor="let d of days" [value]="d">{{ d }}</option>
+          <option *ngFor="let d of days; trackBy: trackByString" [value]="d">{{ d }}</option>
         </select>
       </div>
       <div class="field">
@@ -106,7 +106,7 @@
       <div class="field">
         <label for="semester">Semester</label>
         <select id="semester" name="semester" [(ngModel)]="draft.semester">
-          <option *ngFor="let n of semesterOptions" [ngValue]="n">
+          <option *ngFor="let n of semesterOptions; trackBy: trackByString" [ngValue]="n">
             Semester {{ n }}
           </option>
         </select>
@@ -150,12 +150,8 @@
       (ngModelChange)="onSearch()"
       name="search"
     />
-    <button class="search-clear" *ngIf="search" (click)="search = ''">
-      <svg class="icon" viewBox="0 0 256 256" fill="currentColor">
-        <path
-          d="M205.66,194.34a8,8,0,0,1-11.32,11.32L128,139.31,61.66,205.66a8,8,0,0,1-11.32-11.32L116.69,128,50.34,61.66A8,8,0,0,1,61.66,50.34L128,116.69l66.34-66.35a8,8,0,0,1,11.32,11.32L139.31,128Z"
-        />
-      </svg>
+    <button class="search-clear" *ngIf="search" (click)="search = ''" aria-label="Clear search">
+      <app-icon name="close"></app-icon>
     </button>
   </div>
   <button class="btn btn-primary" (click)="openCreate()">+ Add session</button>
@@ -236,7 +232,7 @@
       </tr>
     </thead>
     <tbody>
-      <tr *ngFor="let s of schedules">
+      <tr *ngFor="let s of schedules; trackBy: trackByScheduleId">
         <td class="mono">{{ s.scheduleId }}</td>
         <td>
           <span class="chip">{{ s.groupName }}</span>

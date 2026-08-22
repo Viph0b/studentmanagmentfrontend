@@ -33,7 +33,7 @@
         <label for="major">Major</label>
         <select id="major" name="major" [(ngModel)]="draft.majorId" (ngModelChange)="majorError = ''">
           <option [ngValue]="0" disabled>Select a major</option>
-          <option *ngFor="let m of majorOptions" [ngValue]="m.id">
+          <option *ngFor="let m of majorOptions; trackBy: trackById" [ngValue]="m.id">
             {{ m.name }}
           </option>
         </select>
@@ -46,7 +46,7 @@
           name="currentSemester"
           [(ngModel)]="draft.currentSemester"
         >
-          <option *ngFor="let n of semesterOptions" [value]="n">
+          <option *ngFor="let n of semesterOptions; trackBy: trackByString" [value]="n">
             Semester {{ n }}
           </option>
         </select>
@@ -102,12 +102,8 @@
       (ngModelChange)="onSearch()"
       name="search"
     />
-    <button class="search-clear" *ngIf="search" (click)="search = ''">
-      <svg class="icon" viewBox="0 0 256 256" fill="currentColor">
-        <path
-          d="M205.66,194.34a8,8,0,0,1-11.32,11.32L128,139.31,61.66,205.66a8,8,0,0,1-11.32-11.32L116.69,128,50.34,61.66A8,8,0,0,1,61.66,50.34L128,116.69l66.34-66.35a8,8,0,0,1,11.32,11.32L139.31,128Z"
-        />
-      </svg>
+    <button class="search-clear" *ngIf="search" (click)="search = ''" aria-label="Clear search">
+      <app-icon name="close"></app-icon>
     </button>
   </div>
   <button class="btn btn-primary" (click)="openCreate()">+ Add group</button>
@@ -187,7 +183,7 @@
       </tr>
     </thead>
     <tbody>
-      <tr *ngFor="let g of groups">
+      <tr *ngFor="let g of groups; trackBy: trackByGroupId">
         <td class="mono">{{ g.groupId }}</td>
         <td>
           <strong>{{ g.groupName }}</strong>

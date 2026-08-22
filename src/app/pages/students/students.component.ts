@@ -1,8 +1,10 @@
 import { CommonModule } from "@angular/common";
-import { Component, OnInit } from "@angular/core";
+import { Component, DestroyRef, inject, OnInit } from "@angular/core";
 import { FormsModule } from "@angular/forms";
+import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
 
 import { PagerComponent } from "../../components/pager/pager.component";
+import { IconComponent } from "../../components/icon/icon.component";
 import { StudentService } from "../../services/student.service";
 import { MajorService } from "../../services/major.service";
 import { GroupService } from "../../services/group.service";
@@ -42,10 +44,12 @@ const BLANK: StudentDraft = {
 @Component({
   selector: "app-students",
   standalone: true,
-  imports: [CommonModule, FormsModule, PagerComponent],
+  imports: [CommonModule, FormsModule, PagerComponent, IconComponent],
   templateUrl: "./students.component.html",
 })
 export class StudentsComponent implements OnInit {
+  private destroyRef = inject(DestroyRef);
+
   students: Student[] = [];
   loading = true;
   error = "";
@@ -87,6 +91,18 @@ export class StudentsComponent implements OnInit {
     this.loadLookups();
   }
 
+  ngOnDestroy(): void {
+    clearTimeout(this.searchTimer);
+  }
+
+  trackById(_index: number, item: { id: number }): number {
+    return item.id;
+  }
+
+  trackByStudentId(_index: number, item: Student): number {
+    return item.studentId;
+  }
+
   load(): void {
     this.loading = true;
     this.error = "";
@@ -98,6 +114,7 @@ export class StudentsComponent implements OnInit {
         page: this.page,
         pageSize: this.pageSize,
       })
+      .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe({
         next: (result) => {
           if (result.totalPages > 0 && result.page > result.totalPages) {

@@ -16,7 +16,7 @@ import { FormsModule } from '@angular/forms';
         >
           ← Prev
         </button>
-        <ng-container *ngFor="let p of pages">
+        <ng-container *ngFor="let p of pages; trackBy: trackByPage">
           <button
             class="btn btn-sm page-num"
             [class.btn-primary]="p === page"
@@ -38,7 +38,7 @@ import { FormsModule } from '@angular/forms';
       <div class="pager-size">
         <span>{{ total }} records</span>
         <select [ngModel]="pageSize" (ngModelChange)="pageSizeChange.emit($event)">
-          <option *ngFor="let n of sizeOptions" [ngValue]="n">{{ n }} / page</option>
+          <option *ngFor="let n of sizeOptions; trackBy: trackByNumber" [ngValue]="n">{{ n }} / page</option>
         </select>
       </div>
     </div>
@@ -68,5 +68,13 @@ export class PagerComponent {
   go(p: number): void {
     if (p < 1 || p > this.totalPages || p === this.page) return;
     this.pageChange.emit(p);
+  }
+
+  trackByPage(_index: number, p: number): number {
+    return p;
+  }
+
+  trackByNumber(_index: number, n: number): number {
+    return n;
   }
 }

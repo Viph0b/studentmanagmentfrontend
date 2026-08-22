@@ -76,7 +76,7 @@
         <label for="major">Major</label>
         <select id="major" name="major" [(ngModel)]="draft.majorId" (ngModelChange)="onMajorChange()">
           <option [ngValue]="0" disabled>Select a major</option>
-          <option *ngFor="let m of majorOptions" [ngValue]="m.id">
+          <option *ngFor="let m of majorOptions; trackBy: trackById" [ngValue]="m.id">
             {{ m.name }}
           </option>
         </select>
@@ -85,7 +85,7 @@
         <label for="groupName">Group</label>
         <select id="groupName" name="groupName" [(ngModel)]="draft.groupId" (ngModelChange)="onGroupChange()">
           <option [ngValue]="0" disabled>Select a group</option>
-          <option *ngFor="let g of visibleGroups" [ngValue]="g.id">
+          <option *ngFor="let g of visibleGroups; trackBy: trackById" [ngValue]="g.id">
             {{ g.name }}
           </option>
         </select>
@@ -118,12 +118,8 @@
       (ngModelChange)="onSearch()"
       name="search"
     />
-    <button class="search-clear" *ngIf="search" (click)="search = ''">
-      <svg class="icon" viewBox="0 0 256 256" fill="currentColor">
-        <path
-          d="M205.66,194.34a8,8,0,0,1-11.32,11.32L128,139.31,61.66,205.66a8,8,0,0,1-11.32-11.32L116.69,128,50.34,61.66A8,8,0,0,1,61.66,50.34L128,116.69l66.34-66.35a8,8,0,0,1,11.32,11.32L139.31,128Z"
-        />
-      </svg>
+    <button class="search-clear" *ngIf="search" (click)="search = ''" aria-label="Clear search">
+      <app-icon name="close"></app-icon>
     </button>
   </div>
   <button class="btn btn-primary" (click)="openCreate()">
@@ -183,7 +179,7 @@
       </tr>
     </thead>
     <tbody>
-      <tr *ngFor="let s of students">
+      <tr *ngFor="let s of students; trackBy: trackByStudentId">
         <td class="mono">{{ s.studentId }}</td>
         <td>{{ s.studentName }}</td>
         <td>{{ s.gender }}</td>

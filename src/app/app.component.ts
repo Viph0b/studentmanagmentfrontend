@@ -11,12 +11,13 @@ import { Subject, filter, takeUntil } from "rxjs";
 
 import { ToastService, Toast } from "./services/toast.service";
 import { ConfirmService, ConfirmOptions } from "./services/confirm.service";
+import { IconComponent } from "./components/icon/icon.component";
 import { routeAnimations } from "./route-animations";
 
 @Component({
   selector: "app-root",
   standalone: true,
-  imports: [CommonModule, RouterOutlet, RouterLink, RouterLinkActive],
+  imports: [CommonModule, RouterOutlet, RouterLink, RouterLinkActive, IconComponent],
   templateUrl: "./app.component.html",
   animations: [routeAnimations],
 })
@@ -113,6 +114,14 @@ export class AppComponent implements OnInit, OnDestroy {
   ngOnDestroy(): void {
     this.destroy$.next();
     this.destroy$.complete();
+  }
+
+  trackByPath(_index: number, item: { path: string }): string {
+    return item.path;
+  }
+
+  trackByToastId(_index: number, item: Toast): number {
+    return item.id;
   }
 
   toggleSidebar(): void {

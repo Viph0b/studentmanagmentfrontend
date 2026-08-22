@@ -1,8 +1,10 @@
 import { CommonModule } from '@angular/common';
-import { Component, OnInit } from '@angular/core';
+import { Component, DestroyRef, inject, OnInit } from '@angular/core';
 import { FormsModule } from '@angular/forms';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 
 import { PagerComponent } from '../../components/pager/pager.component';
+import { IconComponent } from '../../components/icon/icon.component';
 import { ClassScheduleService } from '../../services/class-schedule.service';
 import { MajorService } from '../../services/major.service';
 import { GroupService } from '../../services/group.service';
@@ -51,10 +53,12 @@ const DAYS = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'
 @Component({
   selector: 'app-schedule',
   standalone: true,
-  imports: [CommonModule, FormsModule, PagerComponent],
+  imports: [CommonModule, FormsModule, PagerComponent, IconComponent],
   templateUrl: './schedule.component.html',
 })
 export class ScheduleComponent implements OnInit {
+  private destroyRef = inject(DestroyRef);
+
   days = DAYS;
   schedules: ClassSchedule[] = [];
   loading = true;
@@ -98,6 +102,30 @@ export class ScheduleComponent implements OnInit {
   ngOnInit(): void {
     this.load();
     this.loadLookups();
+  }
+
+  ngOnDestroy(): void {
+    clearTimeout(this.searchTimer);
+  }
+
+  trackById(_index: number, item: { id: number }): number {
+    return item.id;
+  }
+
+  trackByMajorId(_index: number, item: Major): number {
+    return item.majorId;
+  }
+
+  trackByTeacherId(_index: number, item: Teacher): number {
+    return item.teacherId;
+  }
+
+  trackByScheduleId(_index: number, item: ClassSchedule): number {
+    return item.scheduleId;
+  }
+
+  trackByString(index: number): number {
+    return index;
   }
 
   loadLookups(): void {
@@ -171,6 +199,7 @@ export class ScheduleComponent implements OnInit {
         page: this.page,
         pageSize: this.pageSize,
       })
+      .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe({
         next: (result) => {
           if (result.totalPages > 0 && result.page > result.totalPages) {

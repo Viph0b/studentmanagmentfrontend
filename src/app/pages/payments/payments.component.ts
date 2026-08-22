@@ -1,8 +1,10 @@
 import { CommonModule } from "@angular/common";
-import { Component, OnInit } from "@angular/core";
+import { Component, DestroyRef, inject, OnInit } from "@angular/core";
 import { FormsModule } from "@angular/forms";
+import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
 
 import { PagerComponent } from "../../components/pager/pager.component";
+import { IconComponent } from "../../components/icon/icon.component";
 import { FeePaymentService } from "../../services/fee-payment.service";
 import { StudentService } from "../../services/student.service";
 import { MajorService } from "../../services/major.service";
@@ -33,10 +35,12 @@ const BLANK: PaymentDraft = {
 @Component({
   selector: "app-payments",
   standalone: true,
-  imports: [CommonModule, FormsModule, PagerComponent],
+  imports: [CommonModule, FormsModule, PagerComponent, IconComponent],
   templateUrl: "./payments.component.html",
 })
 export class PaymentsComponent implements OnInit {
+  private destroyRef = inject(DestroyRef);
+
   payments: StudentFeePayment[] = [];
   students: Student[] = [];
   majors: Major[] = [];
@@ -83,6 +87,22 @@ export class PaymentsComponent implements OnInit {
     });
   }
 
+  ngOnDestroy(): void {
+    clearTimeout(this.searchTimer);
+  }
+
+  trackByStudentId(_index: number, item: Student): number {
+    return item.studentId;
+  }
+
+  trackByPaymentId(_index: number, item: StudentFeePayment): number {
+    return item.paymentId;
+  }
+
+  trackByString(index: number): number {
+    return index;
+  }
+
   studentName(id: number): string {
     return (
       this.students.find((s) => s.studentId === id)?.studentName ?? String(id)
@@ -119,6 +139,7 @@ export class PaymentsComponent implements OnInit {
         page: this.page,
         pageSize: this.pageSize,
       })
+      .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe({
         next: (result) => {
           if (result.totalPages > 0 && result.page > result.totalPages) {

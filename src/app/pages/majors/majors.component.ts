@@ -1,8 +1,10 @@
 import { CommonModule } from "@angular/common";
-import { Component, OnInit } from "@angular/core";
+import { Component, DestroyRef, inject, OnInit } from "@angular/core";
 import { FormsModule } from "@angular/forms";
+import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
 
 import { PagerComponent } from "../../components/pager/pager.component";
+import { IconComponent } from "../../components/icon/icon.component";
 import { MajorService } from "../../services/major.service";
 import { SubjectService } from "../../services/subject.service";
 import { ToastService } from "../../services/toast.service";
@@ -27,10 +29,12 @@ const BLANK: MajorDraft = {
 @Component({
   selector: "app-majors",
   standalone: true,
-  imports: [CommonModule, FormsModule, PagerComponent],
+  imports: [CommonModule, FormsModule, PagerComponent, IconComponent],
   templateUrl: "./majors.component.html",
 })
 export class MajorsComponent implements OnInit {
+  private destroyRef = inject(DestroyRef);
+
   majors: Major[] = [];
   loading = true;
   error = "";
@@ -75,6 +79,22 @@ export class MajorsComponent implements OnInit {
     this.loadLookups();
   }
 
+  ngOnDestroy(): void {
+    clearTimeout(this.searchTimer);
+  }
+
+  trackById(_index: number, item: { id: number }): number {
+    return item.id;
+  }
+
+  trackByMajorId(_index: number, item: Major): number {
+    return item.majorId;
+  }
+
+  trackByString(index: number): number {
+    return index;
+  }
+
   loadLookups(): void {
     this.subjectSvc.getOptions().subscribe({
       next: (subjects) => (this.subjectOptions = subjects),
@@ -107,6 +127,7 @@ export class MajorsComponent implements OnInit {
         page: this.page,
         pageSize: this.pageSize,
       })
+      .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe({
         next: (result) => {
           if (result.totalPages > 0 && result.page > result.totalPages) {

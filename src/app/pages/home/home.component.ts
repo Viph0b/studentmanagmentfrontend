@@ -81,6 +81,10 @@ export class HomeComponent implements OnInit {
     });
   }
 
+  trackByTile(_index: number, item: Tile): string {
+    return item.path;
+  }
+
   private count(source: Observable<PagedResult<unknown>>): Observable<number | null> {
     return source.pipe(
       map((result) => result.total),

@@ -3,16 +3,8 @@
   (click)="toggleSidebar()"
   aria-label="Toggle navigation"
 >
-  <svg class="icon" viewBox="0 0 256 256" fill="currentColor">
-    <path
-      *ngIf="!sidebarOpen"
-      d="M224,128a8,8,0,0,1-8,8H40a8,8,0,0,1,0-16H216A8,8,0,0,1,224,128ZM40,72H216a8,8,0,0,0,0-16H40a8,8,0,0,0,0,16ZM216,184H40a8,8,0,0,0,0,16H216a8,8,0,0,0,0-16Z"
-    />
-    <path
-      *ngIf="sidebarOpen"
-      d="M205.66,194.34a8,8,0,0,1-11.32,11.32L128,139.31,61.66,205.66a8,8,0,0,1-11.32-11.32L116.69,128,50.34,61.66A8,8,0,0,1,61.66,50.34L128,116.69l66.34-66.35a8,8,0,0,1,11.32,11.32L139.31,128Z"
-    />
-  </svg>
+  <app-icon *ngIf="!sidebarOpen" name="menu"></app-icon>
+  <app-icon *ngIf="sidebarOpen" name="close"></app-icon>
 </button>
 
 <div
@@ -26,18 +18,14 @@
     <a class="sidebar-header" routerLink="/" (click)="closeSidebar()">
       <div class="brand">
         <span class="brand-icon">
-          <svg class="icon" viewBox="0 0 256 256" fill="currentColor">
-            <path
-              d="M219.31,108.68l-80-80a16,16,0,0,0-22.62,0l-80,80A15.87,15.87,0,0,0,32,120v96a8,8,0,0,0,8,8h64a8,8,0,0,0,8-8V160h32v56a8,8,0,0,0,8,8h64a8,8,0,0,0,8-8V120A15.87,15.87,0,0,0,219.31,108.68ZM208,208H160V152a8,8,0,0,0-8-8H104a8,8,0,0,0-8,8v56H48V120l80-80,80,80Z"
-            />
-          </svg>
+          <app-icon name="home"></app-icon>
         </span>
         School Management
       </div>
       <div class="sub">Administration Portal</div>
     </a>
     <ul class="sidebar-nav">
-      <li *ngFor="let item of navItems">
+      <li *ngFor="let item of navItems; trackBy: trackByPath">
         <a
           [routerLink]="item.path"
           routerLinkActive="active"
@@ -45,7 +33,7 @@
           (click)="closeSidebar()"
         >
           <span class="nav-icon">
-            <svg class="icon" viewBox="0 0 256 256" fill="currentColor">
+            <svg class="icon" viewBox="0 0 256 256" fill="currentColor" aria-hidden="true">
               <path [attr.d]="item.icon" />
             </svg>
           </span>
@@ -70,15 +58,11 @@
     [class.toast-success]="t.type === 'success'"
     [class.toast-error]="t.type === 'error'"
     [class.toast-info]="t.type === 'info'"
-    *ngFor="let t of toasts"
+    *ngFor="let t of toasts; trackBy: trackByToastId"
   >
     <span>{{ t.message }}</span>
-    <button class="toast-close" (click)="dismissToast(t.id)">
-      <svg class="icon" viewBox="0 0 256 256" fill="currentColor">
-        <path
-          d="M205.66,194.34a8,8,0,0,1-11.32,11.32L128,139.31,61.66,205.66a8,8,0,0,1-11.32-11.32L116.69,128,50.34,61.66A8,8,0,0,1,61.66,50.34L128,116.69l66.34-66.35a8,8,0,0,1,11.32,11.32L139.31,128Z"
-        />
-      </svg>
+    <button class="toast-close" (click)="dismissToast(t.id)" aria-label="Dismiss">
+      <app-icon name="close"></app-icon>
     </button>
   </div>
 </div>

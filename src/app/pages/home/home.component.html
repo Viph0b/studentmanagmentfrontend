@@ -11,11 +11,11 @@
 <div class="dashboard-grid" *ngIf="!loading || error">
   <a
     class="dashboard-tile"
-    *ngFor="let t of tiles"
+    *ngFor="let t of tiles; trackBy: trackByTile"
     [routerLink]="t.path"
   >
     <span class="tile-icon">
-      <svg class="icon" viewBox="0 0 256 256" fill="currentColor">
+      <svg class="icon" viewBox="0 0 256 256" fill="currentColor" aria-hidden="true">
         <path [attr.d]="t.icon"/>
       </svg>
     </span>

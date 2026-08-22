@@ -1,8 +1,10 @@
 import { CommonModule } from '@angular/common';
-import { Component, OnInit } from '@angular/core';
+import { Component, DestroyRef, inject, OnInit } from '@angular/core';
 import { FormsModule } from '@angular/forms';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 
 import { PagerComponent } from '../../components/pager/pager.component';
+import { IconComponent } from '../../components/icon/icon.component';
 import { GroupService } from '../../services/group.service';
 import { MajorService } from '../../services/major.service';
 import { ToastService } from '../../services/toast.service';
@@ -33,10 +35,12 @@ const BLANK: GroupDraft = {
 @Component({
   selector: 'app-groups',
   standalone: true,
-  imports: [CommonModule, FormsModule, PagerComponent],
+  imports: [CommonModule, FormsModule, PagerComponent, IconComponent],
   templateUrl: './groups.component.html',
 })
 export class GroupsComponent implements OnInit {
+  private destroyRef = inject(DestroyRef);
+
   groups: Group[] = [];
   loading = true;
   error = '';
@@ -75,6 +79,22 @@ export class GroupsComponent implements OnInit {
     this.loadLookups();
   }
 
+  ngOnDestroy(): void {
+    clearTimeout(this.searchTimer);
+  }
+
+  trackById(_index: number, item: { id: number }): number {
+    return item.id;
+  }
+
+  trackByGroupId(_index: number, item: Group): number {
+    return item.groupId;
+  }
+
+  trackByString(index: number): number {
+    return index;
+  }
+
   loadLookups(): void {
     this.majorSvc.getOptions().subscribe({
       next: (options) => (this.majorOptions = options),
@@ -93,6 +113,7 @@ export class GroupsComponent implements OnInit {
         page: this.page,
         pageSize: this.pageSize,
       })
+      .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe({
         next: (result) => {
           if (result.totalPages > 0 && result.page > result.totalPages) {

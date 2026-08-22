@@ -45,7 +45,7 @@
         <div class="check-list">
           <label
             class="check-item"
-            *ngFor="let subject of visibleSubjects"
+            *ngFor="let subject of visibleSubjects; trackBy: trackById"
             [class.checked]="isSubjectChecked(subject)"
           >
             <input
@@ -95,12 +95,8 @@
       (ngModelChange)="onSearch()"
       name="search"
     />
-    <button class="search-clear" *ngIf="search" (click)="search = ''">
-      <svg class="icon" viewBox="0 0 256 256" fill="currentColor">
-        <path
-          d="M205.66,194.34a8,8,0,0,1-11.32,11.32L128,139.31,61.66,205.66a8,8,0,0,1-11.32-11.32L116.69,128,50.34,61.66A8,8,0,0,1,61.66,50.34L128,116.69l66.34-66.35a8,8,0,0,1,11.32,11.32L139.31,128Z"
-        />
-      </svg>
+    <button class="search-clear" *ngIf="search" (click)="search = ''" aria-label="Clear search">
+      <app-icon name="close"></app-icon>
     </button>
   </div>
   <button class="btn btn-primary" (click)="openCreate()">+ Add major</button>
@@ -142,15 +138,15 @@
       </tr>
     </thead>
     <tbody>
-      <tr *ngFor="let m of majors">
+      <tr *ngFor="let m of majors; trackBy: trackByMajorId">
         <td class="mono">{{ m.majorId }}</td>
         <td>{{ m.majorName }}</td>
         <td class="mono">${{ m.pricePerSemester }}</td>
         <td>
-          <span class="chip" *ngFor="let g of m.groupNames">{{ g }}</span>
+          <span class="chip" *ngFor="let g of m.groupNames; trackBy: trackByString">{{ g }}</span>
         </td>
         <td>
-          <span class="chip" *ngFor="let s of m.subjectNames">{{ s }}</span>
+          <span class="chip" *ngFor="let s of m.subjectNames; trackBy: trackByString">{{ s }}</span>
         </td>
         <td>
           <div class="row-actions">
