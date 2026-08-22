@@ -1,6 +1,7 @@
 import { CommonModule } from '@angular/common';
 import { Component, DestroyRef, inject, OnInit } from '@angular/core';
 import { FormsModule } from '@angular/forms';
+import { HttpErrorResponse } from '@angular/common/http';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 
 import { PagerComponent } from '../../components/pager/pager.component';
@@ -17,7 +18,7 @@ import { LabelValue } from '../../models/label-value.model';
 import { Teacher } from '../../models/teacher.model';
 import { Major } from '../../models/major.model';
 import { Group } from '../../models/group.model';
-import { isAcademicYear, isTimeRange } from '../../utils/validators';
+import { isAcademicYear, isFilled, isTimeRange } from '../../utils/validators';
 import { SortOrder } from '../../utils/sort';
 
 type ScheduleDraft = {
@@ -307,6 +308,10 @@ export class ScheduleComponent implements OnInit {
       this.yearError = 'Enter an academic year like 2025-2026.';
       return;
     }
+    if (!isFilled(this.draft.room)) {
+      this.formError = 'Room is required.';
+      return;
+    }
     this.saving = true;
     this.formError = '';
 
@@ -328,13 +333,13 @@ export class ScheduleComponent implements OnInit {
       const payload: ClassSchedule = { scheduleId: 0, ...base };
       this.scheduleSvc.create(payload).subscribe({
         next: () => this.onSaved('Class scheduled.'),
-        error: () => this.onSaveError(),
+        error: (err) => this.onSaveError(err),
       });
     } else {
       const payload: ClassSchedule = { scheduleId: this.editingId, ...base };
       this.scheduleSvc.update(this.editingId, payload).subscribe({
         next: () => this.onSaved('Schedule updated.'),
-        error: () => this.onSaveError(),
+        error: (err) => this.onSaveError(err),
       });
     }
   }
@@ -347,9 +352,14 @@ export class ScheduleComponent implements OnInit {
     this.loadLookups();
   }
 
-  private onSaveError(): void {
+  private onSaveError(err: HttpErrorResponse): void {
     this.saving = false;
-    this.formError = 'Save failed. Check the API connection and try again.';
+    const body = err.error;
+    if (body?.errors) {
+      this.formError = Object.values(body.errors).flat().join('. ');
+    } else {
+      this.formError = body?.message ?? 'Save failed. Please try again.';
+    }
   }
 
   remove(s: ClassSchedule): void {

@@ -1,6 +1,7 @@
 import { CommonModule } from "@angular/common";
 import { Component, DestroyRef, inject, OnInit } from "@angular/core";
 import { FormsModule } from "@angular/forms";
+import { HttpErrorResponse } from "@angular/common/http";
 import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
 
 import { PagerComponent } from "../../components/pager/pager.component";
@@ -285,13 +286,13 @@ export class TeachersComponent implements OnInit {
       const payload: Teacher = { teacherId: 0, ...base };
       this.teacherSvc.create(payload).subscribe({
         next: () => this.onSaved("Teacher added."),
-        error: () => this.onSaveError(),
+        error: (err) => this.onSaveError(err),
       });
     } else {
       const payload: Teacher = { teacherId: this.editingId, ...base };
       this.teacherSvc.update(this.editingId, payload).subscribe({
         next: () => this.onSaved("Teacher updated."),
-        error: () => this.onSaveError(),
+        error: (err) => this.onSaveError(err),
       });
     }
   }
@@ -304,9 +305,14 @@ export class TeachersComponent implements OnInit {
     this.loadSubjects();
   }
 
-  private onSaveError(): void {
+  private onSaveError(err: HttpErrorResponse): void {
     this.saving = false;
-    this.formError = "Save failed. Check the API connection and try again.";
+    const body = err.error;
+    if (body?.errors) {
+      this.formError = Object.values(body.errors).flat().join('. ');
+    } else {
+      this.formError = body?.message ?? 'Save failed. Please try again.';
+    }
   }
 
   remove(t: Teacher): void {

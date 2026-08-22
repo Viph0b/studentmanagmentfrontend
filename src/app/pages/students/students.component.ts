@@ -1,6 +1,7 @@
 import { CommonModule } from "@angular/common";
 import { Component, DestroyRef, inject, OnInit } from "@angular/core";
 import { FormsModule } from "@angular/forms";
+import { HttpErrorResponse } from "@angular/common/http";
 import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
 
 import { PagerComponent } from "../../components/pager/pager.component";
@@ -15,6 +16,7 @@ import { LabelValue } from "../../models/label-value.model";
 import { Group } from "../../models/group.model";
 import {
   isEmail,
+  isFilled,
   isNotFuture,
   isPhone,
   isRealDate,
@@ -257,7 +259,15 @@ export class StudentsComponent implements OnInit {
 
     const email = this.draft.email.trim();
     const phone = this.draft.phoneNumber.trim();
-    if (email && !isEmail(email)) {
+    if (!isFilled(phone)) {
+      this.phoneError = "Phone number is required.";
+      return;
+    }
+    if (!isFilled(email)) {
+      this.emailError = "Email is required.";
+      return;
+    }
+    if (!isEmail(email)) {
       this.emailError = "Enter a valid email (e.g. name@example.com).";
       return;
     }
@@ -281,7 +291,7 @@ export class StudentsComponent implements OnInit {
       };
       this.studentSvc.create(payload).subscribe({
         next: () => this.onSaved("Student added."),
-        error: () => this.onSaveError(),
+        error: (err) => this.onSaveError(err),
       });
     } else {
       const existing = this.students.find(
@@ -300,7 +310,7 @@ export class StudentsComponent implements OnInit {
       };
       this.studentSvc.update(this.editingId, payload).subscribe({
         next: () => this.onSaved("Student updated."),
-        error: () => this.onSaveError(),
+        error: (err) => this.onSaveError(err),
       });
     }
   }
@@ -313,9 +323,14 @@ export class StudentsComponent implements OnInit {
     this.loadLookups();
   }
 
-  private onSaveError(): void {
+  private onSaveError(err: HttpErrorResponse): void {
     this.saving = false;
-    this.formError = "Save failed. Check the API connection and try again.";
+    const body = err.error;
+    if (body?.errors) {
+      this.formError = Object.values(body.errors).flat().join('. ');
+    } else {
+      this.formError = body?.message ?? 'Save failed. Please try again.';
+    }
   }
 
   remove(s: Student): void {
